@@ -1,0 +1,62 @@
+#!/bin/bash
+
+echo "正在更新软件包..."
+sudo apt update
+sudo -E env DEBIAN_FRONTEND=noninteractive apt -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
+
+hangover_url="https://github.com/AndreRH/hangover/releases/download/hangover-11.9/hangover_11.9_debian13_trixie_arm64.tar"
+latest_version="11.9"
+
+mirror_sites=(
+    "https://gh-proxy.org/"
+    "https://cdn.gh-proxy.org/"
+    "https://edgeone.gh-proxy.org/"
+    "https://gh.llkk.cc/"
+    "https://github.moeyy.xyz/"
+    "https://mirror.ghproxy.com/"
+    ""
+)
+
+mkdir -p /tmp/hangover
+cd /tmp/hangover
+
+for mirror in "${mirror_sites[@]}"; do
+    url="${mirror}${hangover_url}"
+    echo "尝试从 $url 下载Hangover..."
+    wget "${url}" -O hangover.tar
+    if [ $? -eq 0 ]; then
+        echo "成功下载Hangover"
+        break
+    fi
+    if [ -z "$mirror" ]; then
+        cd /tmp
+        rm -rf /tmp/hangover
+        echo "下载失败...退出安装..."
+        exit
+    fi
+done
+
+echo "正在安装Hangover..."
+tar xvf hangover.tar
+sudo apt install -y ./hangover*.deb
+if [ $? -ne 0 ]; then
+    cd /tmp
+    rm -rf /tmp/hangover
+    echo "安装失败...退出安装..."
+    exit 1
+fi
+
+echo "正在初始化Wine..."
+wineboot --init
+
+echo "正在安装DXVK..."
+tar xvf dxvk-v*.tar.gz
+mv dxvk-v*/x32/* /home/tiny/.wine/drive_c/windows/syswow64
+mv dxvk-v*/arm64ec/* /home/tiny/.wine/drive_c/windows/system32
+
+echo "正在修复字体..."
+regedit "Z:\\opt\\tiny\\extra\\chn_fonts.reg" && wine reg delete "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\FontSubstitutes" /va /f
+
+cd /tmp
+rm -rf /tmp/hangover
+echo "安装完成"

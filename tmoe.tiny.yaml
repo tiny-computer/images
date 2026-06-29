@@ -1,0 +1,320 @@
+# 一个示例如下。除非明确说明某个键可以不写，否则都应该写上。
+
+# 代号必须是合法文件名，容器会被放到以该值命名的文件夹
+code: "xfce"
+name: "Debian 13 XFCE"
+description: "最经典的容器，包含 Windows 风格主题和开箱即用的火狐浏览器、VS Code、中文输入法，从小小电脑 v1.0.6 起一直沿用至今。"
+# 图片预览。只能是图片地址。
+preview: "/usr/share/kali-undercover/backgrounds/Windows-10.jpg"
+# 介绍你的容器的网页。可以缺失。
+webpage: "https://www.github.com/Cateners/tiny_computer"
+# 小小容器提供若干功能，可以按需使用。
+feature:
+  # type代表需要使用的功能类型。audio、microphone类型只能出现一次，图形前端只能启用一个
+  # audio类型
+  # 如果启用，下次启动容器后安卓侧将读取播放cacheDir/tmp/.tiny.audio的音频。
+  # 容器内部需要自行将音频送到/tmp/.tiny.audio。格式请参考源码。
+  - type: "audio"
+    name: "音频播放"
+    description: "开启后，将持续获取容器内音频并播放。下次启动容器时生效。"
+    enabled: true
+  # microphone类型
+  # 开启时，小小容器将申请麦克风权限，并连接cacheDir/tmp/.tiny.mic发送麦克风音频
+  # 容器内部需要自行处理从/tmp/.tiny.mic接收的音频。格式请参考源码。
+  # 只可以临时启用，没有enabled属性
+  - type: "microphone"
+    name: "麦克风转发"
+    description: "启动麦克风，将音频实时转发到容器。麦克风持续开启会比较耗电，记得关闭！"
+  # 图形前端
+  # webview类型
+  # 如果启用，下次启动容器后将执行command，在端口就绪后用全屏WebView加载链接
+  # - type: "webview"
+  #   name: "noVNC显示图形界面"
+  #   description: "默认使用noVNC显示图形界面。你可以分享远程链接，供局域网内其他有浏览器的设备访问！"
+  #   command: "sudo service dbus start; eval `dbus-launch --sh-syntax`; startnovnc &"
+  #   # 链接被分享时，所有"localhost""127.0.0.1"会被替换成局域网ip地址。
+  #   link: "http://localhost:36084/vnc.html?host=localhost&port=36084&autoconnect=true&resize=remote&password=12345678"
+  #   enabled: false
+  # avnc类型
+  # 如果启用，下次启动容器后将执行command，在cacheDir/tmp/.tiny.vnc就绪后用使用AVNC加载链接
+  - type: "avnc"
+    name: "AVNC显示图形界面"
+    description: |
+      相比noVNC拥有更佳的性能，更舒适的操控方式！
+      默认情况下会模拟触摸板方式操控，长按是鼠标右键，双指单击弹出软键盘。
+      可搭配键鼠使用，免除触摸模拟延迟。
+      中文输入会自动通过 Shift+Insert(粘贴) 发送。在终端，粘贴的快捷键通常是 Ctrl+Shift+Insert，所以输入中文时需要按住 Ctrl。
+      如果遇到不能输入的情况，可以使用 Ctrl+<空格> 使用容器内输入法！
+    command: "sudo service dbus start; eval `dbus-launch --sh-syntax`; startvnc &"
+    # ip和端口号会被忽略，但我们仍需要传入url以供avnc解析。安卓侧会读取cacheDir/tmp/.tiny.vnc的信息。
+    link: "vnc://127.0.0.1:5906?VncPassword=12345678&SecurityType=2"
+    enabled: true
+    # 如果开启，会自动根据屏幕大小调整分辨率。
+    adapt_to_screen_size: true
+    # 缩放比，范围[-1, 1]，对应[0.25, 4]
+    scale_ratio: 0
+  # x11类型
+  # 如果启用，下次启动容器后将以args启动xserver，在端口就绪后执行command，并启动Termux:X11页面
+  - type: "x11"
+    # 容器启动后，会按下列参数在端口 7902（硬编码，目前无法被更改）启动 X 服务器。
+    args: [":6", "-extension", "MIT-SHM"]
+    name: "Termux:X11显示图形界面"
+    description: |
+      支持手写笔操控。目前上限最高的图形界面显示方式，但也最吃性能。
+      需要“通知”权限。如果没有，可能在进入界面时卡住。
+      默认情况下以触摸板方式操控，双指单击是鼠标右键，返回弹出小键盘。
+    command: 'mkdir -p "$HOME/.vnc" && bash /etc/X11/xinit/Xsession &> "$HOME/.vnc/x.log" &'
+    enabled: false
+# 一定不要缺失！这是启动容器的命令！小小容器需要通过它成功在 proot 容器内启动 shell
+# 我预设了一些环境变量以便在命令中使用：
+# $BIN_DIR是安卓上可执行文件的路径
+# $PUBLIC_DIR是给所有容器的公共文件夹，可以通过它在不同容器间传递文件。通常是filesDir/public
+# $CONTAINER_DIR是容器目录
+# $CACHE_DIR是软件的缓存目录，$CACHE_DIR/tmp 是留给容器的 tmp 目录。
+# $EXTRA_ARGS 表示小小容器额外给启动命令添加的 proot 选项。
+# $EXTRA_PATH 表示小小容器额外给启动命令添加的可执行文件路径。
+# $EXTRA_LD_LIBRARY_PATH 表示小小容器额外给启动命令添加的库路径。
+# $EXTRA_LD_PRELOAD 表示小小容器额外给启动命令添加的预加载库路径。
+# $EXTRA_ENV 表示小小容器额外给启动命令添加的环境变量。
+boot_command: >
+  $BIN_DIR/proot $EXTRA_ARGS -H --change-id=1000:1000 --pwd=/home/tiny
+  --rootfs=$CONTAINER_DIR --sysvipc -L --link2symlink --kill-on-exit
+  --mount=/system --mount=/apex --mount=/sys --mount=/data --mount=/storage
+  --mount=/proc --mount=/dev --mount=$CACHE_DIR/tmp:/dev/shm
+  --mount=/dev/urandom:/dev/random --mount=/proc/self/fd:/dev/fd
+  --mount=/proc/self/fd/0:/dev/stdin --mount=/proc/self/fd/1:/dev/stdout
+  --mount=/proc/self/fd/2:/dev/stderr --mount=/dev/null:/dev/tty0
+  --mount=/dev/null:/proc/sys/kernel/cap_last_cap
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/.tmoe-container.stat:/proc/stat
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/.tmoe-container.version:/proc/version
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/bus:/proc/bus
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/buddyinfo:/proc/buddyinfo
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/cgroups:/proc/cgroups
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/consoles:/proc/consoles
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/crypto:/proc/crypto
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/devices:/proc/devices
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/diskstats:/proc/diskstats
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/execdomains:/proc/execdomains
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/fb:/proc/fb
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/filesystems:/proc/filesystems
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/interrupts:/proc/interrupts
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/iomem:/proc/iomem
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/ioports:/proc/ioports
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/kallsyms:/proc/kallsyms
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/keys:/proc/keys
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/key-users:/proc/key-users
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/kpageflags:/proc/kpageflags
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/loadavg:/proc/loadavg
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/locks:/proc/locks
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/misc:/proc/misc
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/modules:/proc/modules
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/pagetypeinfo:/proc/pagetypeinfo
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/partitions:/proc/partitions
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/sched_debug:/proc/sched_debug
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/softirqs:/proc/softirqs
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/timer_list:/proc/timer_list
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/uptime:/proc/uptime
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/vmallocinfo:/proc/vmallocinfo
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/vmstat:/proc/vmstat
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/zoneinfo:/proc/zoneinfo
+  --mount=$PUBLIC_DIR:/home/tiny/公共
+  --mount=/storage/self/primary:/mnt/sdcard
+  --mount=/storage/self/primary/Fonts:/usr/share/fonts/wpsm
+  --mount=/storage/self/primary/AppFiles/Fonts:/usr/share/fonts/yozom
+  --mount=/system/fonts:/usr/share/fonts/androidm
+  --mount=/storage/self/primary/Pictures:/home/tiny/图片
+  --mount=/storage/self/primary/Music:/home/tiny/音乐
+  --mount=/storage/self/primary/Movies:/home/tiny/视频
+  --mount=/storage/self/primary/Download:/home/tiny/下载
+  --mount=/storage/self/primary/DCIM:/home/tiny/照片
+  --mount=/storage/self/primary/Documents:/home/tiny/文档
+  --mount=$CACHE_DIR/tmp:/tmp
+  --mount=$CACHE_DIR/run:/run
+  /usr/bin/env -i HOSTNAME=TINY HOME=/home/tiny USER=tiny TERM=xterm-256color
+  SDL_IM_MODULE=fcitx XMODIFIERS=@im=fcitx QT_IM_MODULE=fcitx GTK_IM_MODULE=fcitx
+  TMOE_CHROOT=false TMOE_PROOT=true TMPDIR=/tmp
+  MOZ_FAKE_NO_SANDBOX=1 QTWEBENGINE_DISABLE_SANDBOX=1
+  DISPLAY=:6 LANG=zh_CN.UTF-8 SHELL=/bin/bash
+  PATH=/usr/local/sbin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/games:/usr/local/games:$EXTRA_PATH
+  LD_LIBRARY_PATH=$EXTRA_LD_LIBRARY_PATH
+  LD_PRELOAD=$EXTRA_LD_PRELOAD
+  $EXTRA_ENV
+  /bin/bash -l
+# 这段命令会在导出容器时在安卓侧执行，然后需要在公共文件夹生成一个 rootfs.tar.zst 导出文件。
+# 软件会找到此文件并重命名为code-时间戳.tar.zst，并默认放到 Document 文件夹。
+# 是的，导出的命令需要你自己提供！因为我不知道哪些文件需要打包到 rootfs 中
+# 这个例子中以 root 身份进入容器，然后执行 /opt/tiny/export.sh 定义的导出步骤。
+# “导出”代表这个容器是分享给其他人使用的，所以默认的例子会先执行可能的隐私文件清理
+# 请确认它不会误删你的文件。
+export_command: >
+  $BIN_DIR/proot -H --pwd=/root --rootfs=$CONTAINER_DIR --sysvipc -L
+  --link2symlink --kill-on-exit
+  --mount=/system --mount=/apex --mount=/sys --mount=/data
+  --mount=/proc --mount=/dev --mount=$CACHE_DIR/tmp:/dev/shm
+  --mount=/dev/urandom:/dev/random --mount=/proc/self/fd:/dev/fd
+  --mount=/proc/self/fd/0:/dev/stdin --mount=/proc/self/fd/1:/dev/stdout
+  --mount=/proc/self/fd/2:/dev/stderr --mount=/dev/null:/dev/tty0
+  --mount=/dev/null:/proc/sys/kernel/cap_last_cap
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/.tmoe-container.stat:/proc/stat
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/.tmoe-container.version:/proc/version
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/bus:/proc/bus
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/buddyinfo:/proc/buddyinfo
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/cgroups:/proc/cgroups
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/consoles:/proc/consoles
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/crypto:/proc/crypto
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/devices:/proc/devices
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/diskstats:/proc/diskstats
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/execdomains:/proc/execdomains
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/fb:/proc/fb
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/filesystems:/proc/filesystems
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/interrupts:/proc/interrupts
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/iomem:/proc/iomem
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/ioports:/proc/ioports
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/kallsyms:/proc/kallsyms
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/keys:/proc/keys
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/key-users:/proc/key-users
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/kpageflags:/proc/kpageflags
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/loadavg:/proc/loadavg
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/locks:/proc/locks
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/misc:/proc/misc
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/modules:/proc/modules
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/pagetypeinfo:/proc/pagetypeinfo
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/partitions:/proc/partitions
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/sched_debug:/proc/sched_debug
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/softirqs:/proc/softirqs
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/timer_list:/proc/timer_list
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/uptime:/proc/uptime
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/vmallocinfo:/proc/vmallocinfo
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/vmstat:/proc/vmstat
+  --mount=$CONTAINER_DIR/usr/local/etc/tmoe-linux/proot_proc/zoneinfo:/proc/zoneinfo
+  --mount=$PUBLIC_DIR:/公共 --mount=$CACHE_DIR/tmp:/tmp --mount=$CACHE_DIR/run:/run
+  /usr/bin/env -i HOSTNAME=ROOT HOME=/root USER=root TERM=xterm-256color
+  TMOE_CHROOT=false TMOE_PROOT=true TMPDIR=/tmp LANG=zh_CN.UTF-8 SHELL=/bin/bash
+  PATH=/usr/local/sbin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/games:/usr/local/games
+  /bin/bash /opt/tiny/export.sh
+# 快捷命令的每一项的类型可以是“命令集合”或“命令”。
+# 如果类型是命令，就需要包含名称、简介（可以缺失）、命令内容。
+# 如果类型是命令集合，就需要包含名称、简介（可以缺失）、一堆命令。
+# 当用户希望重置快捷命令时，会以默认快捷命令恢复。
+quick_commands:
+  - type: "command"
+    name: 检查软件包更新并升级
+    description: 一次性进行修复、更新、升级、清理软件包操作。不是更新小小容器软件本身！
+    command: >
+      sudo dpkg --configure -a && sudo apt update &&
+      sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+      -o Dpkg::Options::="--force-confdef"
+      -o Dpkg::Options::="--force-confold" full-upgrade &&
+      sudo apt autoremove -y
+  - type: "command"
+    name: 查看系统信息
+    description: 使用 fastfetch 查看系统信息
+    command: fastfetch --structure meow && fastfetch --logo none
+  - type: "command"
+    name: 清屏
+    command: clear
+  - type: "command"
+    name: 中断
+    description: 向当前会话发送 Ctrl + C
+    command: "\x03"
+  - type: "command"
+    name: 清理包管理器缓存
+    command: sudo apt clean
+  - type: "commands"
+    name: 软件管理
+    description: 在这里安装或卸载少数几个软件。想要更多还得自行熟悉 Linux 系统操作...
+    commands:
+      - type: "commands"
+        name: 图形处理软件 Krita
+        description: 虽然其实是绘画软件！
+        commands:
+          - type: "command"
+            name: 安装
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install krita krita-l10n
+          - type: "command"
+            name: 卸载
+            command: sudo apt autoremove --purge -y krita krita-l10n
+      - type: "commands"
+        name: 科学计算软件 Octave
+        description: 一定程度上可以作为 Matlab 的平替。
+        commands:
+          - type: "command"
+            name: 安装
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install octave
+          - type: "command"
+            name: 卸载
+            command: sudo apt autoremove --purge -y octave
+      - type: "commands"
+        name: 视频剪辑软件 Kdenlive
+        commands:
+          - type: "command"
+            name: 安装
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install kdenlive
+          - type: "command"
+            name: 卸载
+            command: sudo apt autoremove --purge -y kdenlive
+# 选项可以被开启或关闭，在下一次启动时生效。
+# env, path, ld_library_path, ld_preload, args, pre_start_host_command, post_end_host_command, post_start_container_command
+# 选项应该包含类型、名称、简介（可以缺失）、新增环境变量（可以缺失）、新增PATH（可以缺失）、
+# 新增LD_LIBRARY_PATH（可以缺失）、新增LD_PRELOAD（可以缺失）、新增proot参数（可以缺失）
+# 启动前在安卓端执行命令（可以缺失）
+# 关闭后在安卓端执行命令（可以缺失）
+# 启动后在容器执行命令（可以缺失）
+# 选项集合应该包含类型、名称、简介（可以缺失）、一堆选项
+options:
+  - type: "option"
+    name: 高分辨率支持
+    description: 一键开启高清模式，显示更清晰的同时速度会变慢。
+    env: ["GDK_SCALE=2", "QT_FONT_DPI=192"]
+    enabled: false
+  - type: "option"
+    name: getifaddrs 桥接
+    description: 安卓版本≥13的设备可能需要此选项以便运行某些网络程序。
+    pre_start_host_command: $BIN_DIR/getifaddrs_bridge_server &
+    post_end_host_command: pkill getifaddrs_bridge_server
+    enabled: true
+  - type: "options"
+    name: 图形加速
+    description: >-
+      使用图形加速可部分利用设备GPU提升系统图形处理表现，
+      但由于设备差异也可能导致容器系统及软件运行不稳定甚至异常退出。
+    options:
+      - type: "option"
+        name: Virgl 加速
+        description: 使用 Virgl 为使用 OpenGL ES 的应用提供加速。
+        env: ["GALLIUM_DRIVER=virpipe"]
+        pre_start_host_command: >
+          $BIN_DIR/virgl_test_server --use-egl-surfaceless --use-gles
+          --socket-path=$CACHE_DIR/tmp/.virgl_test &
+        post_end_host_command: pkill virgl_test_server
+        enabled: false
+      - type: "options"
+        name: Adreno GPU 加速
+        description: >-
+          只有部分 Adreno GPU 可使用的加速选项。
+          以下选项最多选一个，其中“启用DRI3”只有在使用 Termux:X11 显示图形界面时才可用。
+        options:
+          - type: "option"
+            name: Turnip + Zink 加速
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/opt/tiny/extra/freedreno_icd.aarch64.json", "TU_DEBUG=noconform", "MESA_VK_WSI_DEBUG=sw"]
+            enabled: false
+          - type: "option"
+            name: 启用 DRI3 的 Turnip + Zink 加速
+            description: 你只应该在使用 Termux:X11 时使用它。
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/opt/tiny/extra/freedreno_icd.aarch64.json", "TU_DEBUG=noconform"]
+            enabled: false

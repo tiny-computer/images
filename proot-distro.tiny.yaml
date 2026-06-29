@@ -1,0 +1,811 @@
+# 一个示例如下。除非明确说明某个键可以不写，否则都应该写上。
+
+# 代号必须是合法文件名，容器会被放到以该值命名的文件夹
+code: "trixie"
+name: "Debian Trixie"
+description: |
+  w... Debian 盒装安装媒介！！！
+  
+  这是一个没有预装图形界面的、纯命令行版本。
+# 图片预览。只能是图片地址。
+preview: "/opt/tiny/preview.png"
+# 介绍你的容器的网页。可以缺失。
+# webpage: "https://www.github.com/Cateners/tiny_computer"
+# 小小容器提供若干功能，可以按需使用。
+feature:
+  # type代表需要使用的功能类型。audio、microphone类型只能出现一次，图形前端只能启用一个
+  # audio类型
+  # 如果启用，下次启动容器后安卓侧将读取播放cacheDir/tmp/.tiny.audio的音频。
+  # 容器内部需要自行将音频送到/tmp/.tiny.audio。格式请参考源码。
+  - type: "audio"
+    name: "音频播放"
+    description: "开启后，将持续获取容器内音频并播放。下次启动容器时生效。"
+    enabled: false
+  # microphone类型
+  # 开启时，小小容器将申请麦克风权限，并连接cacheDir/tmp/.tiny.mic发送麦克风音频
+  # 容器内部需要自行处理从/tmp/.tiny.mic接收的音频。格式请参考源码。
+  # 只可以临时启用，没有enabled属性
+  - type: "microphone"
+    name: "麦克风转发"
+    description: "启动麦克风，将音频实时转发到容器。麦克风持续开启会比较耗电，记得关闭！"
+  # lstat-cache类型
+  # 如果你认为某个文件或文件夹在容器运行时不会改变，而且它很频繁地被访问，就很适合放在这里！
+  # 软件会缓存这些文件的lstat信息，此后proot在解析路径时直接读取缓存的信息。也许可以让运行快那么0.1%。
+  - type: "lstat-cache"
+    name: "缓存路径信息"
+    description: |
+      软件会缓存这些路径的lstat信息，此后proot在解析路径时直接读取缓存的信息。也许可以让运行快那么0.1%。
+      当然，只有你肯定这个路径在文件或文件夹在容器运行时不改变才可以添加。
+    # 填写真实路径。可使用$CONTAINER_DIR（容器目录）和$CACHE_DIR（缓存目录）
+    path:
+      - $CONTAINER_DIR
+      - $CONTAINER_DIR/usr/bin
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu/libpci.so.3.13.0
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu/xfce4/panel/wrapper-2.0
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu/xfce4/panel
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu/xfce4
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu
+      - $CONTAINER_DIR/usr/lib/firefox-esr/firefox-esr
+      - $CONTAINER_DIR/usr/lib/firefox-esr
+      - $CONTAINER_DIR/usr/lib/python3.13
+      - $CONTAINER_DIR/usr/lib/wine/aarch64-unix/*
+      - $CONTAINER_DIR/usr/lib/wine/aarch64-unix
+      - $CONTAINER_DIR/usr/lib/wine/aarch64-windows
+      - $CONTAINER_DIR/usr/lib/wine
+      - $CONTAINER_DIR/usr/lib
+      - $CONTAINER_DIR/usr/libexec
+      - $CONTAINER_DIR/usr/local/share/polkit-1
+      - $CONTAINER_DIR/usr/local/share
+      - $CONTAINER_DIR/usr/local
+      - $CONTAINER_DIR/usr/share/applications/*
+      - $CONTAINER_DIR/usr/share/applications
+      - $CONTAINER_DIR/usr/share/fonts/*
+      - $CONTAINER_DIR/usr/share/fonts
+      - $CONTAINER_DIR/usr/share/fontconfig/conf.avail/*
+      - $CONTAINER_DIR/usr/share/fontconfig/conf.avail
+      - $CONTAINER_DIR/usr/share/fontconfig
+      - $CONTAINER_DIR/usr/share/mime
+      - $CONTAINER_DIR/usr/share/poppler
+      - $CONTAINER_DIR/usr/share/wine/fonts/*
+      - $CONTAINER_DIR/usr/share/wine/fonts
+      - $CONTAINER_DIR/usr/share/wine
+      - $CONTAINER_DIR/usr/share/X11
+      - $CONTAINER_DIR/usr/share/X11/xkb
+      - $CONTAINER_DIR/usr/share/zoneinfo/Asia/Shanghai
+      - $CONTAINER_DIR/usr/share/zoneinfo/Asia
+      - $CONTAINER_DIR/usr/share/zoneinfo
+      - $CONTAINER_DIR/usr/share
+      - $CONTAINER_DIR/usr
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache/data_3
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache/data_2
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache/data_1
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache/data_0
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache/index
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains
+      - $CONTAINER_DIR/home/tiny/.cache
+      - $CONTAINER_DIR/home/tiny/.local/share/icons/.Fluent-base/*
+      - $CONTAINER_DIR/home/tiny/.local/share/icons/.Fluent-base
+      - $CONTAINER_DIR/home/tiny/.local/share/icons/Fluent
+      - $CONTAINER_DIR/home/tiny/.local/share/icons
+      - $CONTAINER_DIR/home/tiny/.local/share/fcitx5/themes
+      - $CONTAINER_DIR/home/tiny/.local/share/fcitx5
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon/bundles/current/jetbrainsd/bin/jetbrainsd
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon/bundles/current/jetbrainsd/bin
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon/bundles/current/jetbrainsd
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon/bundles/current
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon/bundles
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains
+      - $CONTAINER_DIR/home/tiny/.local/share
+      - $CONTAINER_DIR/home/tiny/.local
+      - $CONTAINER_DIR/home/tiny/.wine/dosdevices/*
+      - $CONTAINER_DIR/home/tiny/.wine/dosdevices
+      - $CONTAINER_DIR/home/tiny/.wine/drive_c/windows/system32
+      - $CONTAINER_DIR/home/tiny/.wine/drive_c/windows
+      - $CONTAINER_DIR/home/tiny/.wine/drive_c
+      - $CONTAINER_DIR/home/tiny/.wine
+      - $CONTAINER_DIR/home/tiny
+      - $CONTAINER_DIR/home
+      - $CONTAINER_DIR/etc/apt
+      - $CONTAINER_DIR/etc/fonts/conf.avail/*
+      - $CONTAINER_DIR/etc/fonts/conf.avail
+      - $CONTAINER_DIR/etc/fonts/conf.d/*
+      - $CONTAINER_DIR/etc/fonts/conf.d
+      - $CONTAINER_DIR/etc/fonts
+      - $CONTAINER_DIR/etc/localtime
+      - $CONTAINER_DIR/etc/polkit-1/actions
+      - $CONTAINER_DIR/etc/polkit-1
+      - $CONTAINER_DIR/etc/shells
+      - $CONTAINER_DIR/etc
+      - $CONTAINER_DIR/var/lib/apt
+      - $CONTAINER_DIR/var/lib
+      - $CONTAINER_DIR/var
+      - $CACHE_DIR/tmp
+      - $CACHE_DIR/run
+      - $CONTAINER_DIR/opt/*/bin
+      - $CONTAINER_DIR/opt/*/jbr/lib/cef_server
+      - $CONTAINER_DIR/opt/*/jbr/lib
+      - $CONTAINER_DIR/opt/*/jbr
+      - $CONTAINER_DIR/opt/pycharm/plugins/python-ce/helpers/generator3
+      - $CONTAINER_DIR/opt/pycharm/plugins/python-ce/helpers
+      - $CONTAINER_DIR/opt/pycharm/plugins/python-ce
+      - $CONTAINER_DIR/opt/*/plugins
+      - $CONTAINER_DIR/opt/*
+      - $CONTAINER_DIR/opt/tiny/extra/*
+      - $CONTAINER_DIR/opt/tiny/extra
+      - $CONTAINER_DIR/opt
+      - $CONTAINER_DIR/root
+      - /proc/bus/pci/devices
+      - /proc/bus/pci
+      - /proc/bus
+      - /proc
+      - /system/fonts/*
+      - /system/fonts
+      - /system
+      - /sys/bus/pci
+      - /sys/bus
+      - /sys
+      - /dev
+      - $CONTAINER_DIR/home/tiny/.mozilla
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*/storage/permanent/chrome/idb
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*/storage/permanent/chrome
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*/storage/permanent
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*/storage/default
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*/storage
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox/*/cache2/doomed
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox/*/cache2/entries
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox/*/cache2
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox/*
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox/*/safebrowsing-updating
+    enabled: false
+  # 图形前端
+  # webview类型
+  # 如果启用，下次启动容器后将执行command，在端口就绪后用全屏WebView加载链接
+  - type: "webview"
+    name: "WebView前端示例"
+    description: |
+      启用后，下次启动容器后将执行命令，并在端口就绪后用全屏WebView加载链接。
+      链接被分享时，所有"localhost""127.0.0.1"会被替换成局域网ip地址。
+    command: "# python3 -m http.server &"
+    # 链接被分享时，所有"localhost""127.0.0.1"会被替换成局域网ip地址。
+    link: "http://localhost:8000/"
+    enabled: false
+  # avnc类型
+  # 如果启用，下次启动容器后将执行command，在cacheDir/tmp/.tiny.vnc就绪后用使用AVNC加载链接
+  - type: "avnc"
+    name: "AVNC前端示例"
+    description: |
+      启用后，下次启动容器后将执行命令，并在/tmp/.tiny.vnc套接字就绪后使用AVNC加载链接。
+      ip和端口号会被忽略，但我们仍需要传入url以供avnc解析。
+    command: |
+      # sudo service dbus start; \
+      # eval `dbus-launch --sh-syntax`; \
+      # export XDG_RUNTIME_DIR="/tmp/runtime-tiny"; \
+      # mkdir -p $XDG_RUNTIME_DIR; \
+      # pipewire > /dev/null 2>&1 & \
+      # while [ ! -S "$XDG_RUNTIME_DIR/pipewire-0" ]; do sleep 0.1; done && \
+      # wireplumber > /dev/null 2>&1 & \
+      # pipewire-pulse > /dev/null 2>&1 & \
+      # Xtigervnc -geometry 1440x720 -ZlibLevel=0 -pn -rfbport -1 \
+      # -SendPrimary=off -SetPrimary=off -FrameRate=120 -rfbunixpath /tmp/.tiny.vnc -alwaysshared -a 5 -once -depth 24 \
+      # -SecurityTypes=None -desktop "Debian-GNU/Linux-13-(trixie)_pd-tiny-linux-vnc" :6 -extension MIT-SHM > /dev/null 2>&1 & \
+      # while [ ! -S "/tmp/.tiny.vnc" ]; do sleep 0.1; done && \
+      # startxfce4 > /dev/null 2>&1 &
+    # ip和端口号会被忽略，但我们仍需要传入url以供avnc解析。安卓侧会读取cacheDir/tmp/.tiny.vnc的信息。
+    link: "vnc://127.0.0.1:5906"
+    enabled: false
+    # 如果开启，会自动根据屏幕大小调整分辨率。
+    adapt_to_screen_size: true
+    # 缩放比，范围[-1, 1]，对应[0.25, 4]
+    scale_ratio: 0
+  # x11类型
+  # 如果启用，下次启动容器后将以args启动xserver，在X11套接字就绪后执行command，并启动Termux:X11页面
+  - type: "x11"
+    # 容器启动后，会按下列参数在端口 7902（硬编码，目前无法被更改）启动 X 服务器。
+    args: [":6", "-extension", "MIT-SHM"]
+    name: "Termux:X11前端示例"
+    description: |
+      启用后，下次启动容器时将以args启动xserver，在X11套接字文件就绪后执行命令，并启动Termux:X11页面
+      不过args参数需要自行编辑配置文件（/.tiny.yaml）。
+    command: |
+      # sudo service dbus start; \
+      # eval `dbus-launch --sh-syntax`; \
+      # export XDG_RUNTIME_DIR="/tmp/runtime-tiny"; \
+      # mkdir -p $XDG_RUNTIME_DIR; \
+      # pipewire > /dev/null 2>&1 & \
+      # while [ ! -S "$XDG_RUNTIME_DIR/pipewire-0" ]; do sleep 0.1; done && \
+      # wireplumber > /dev/null 2>&1 & \
+      # pipewire-pulse > /dev/null 2>&1 & \
+      # startxfce4 > /dev/null 2>&1 &
+    enabled: false
+# 一定不要缺失！这是启动容器的命令！小小容器需要通过它成功在 proot 容器内启动 shell
+# 我预设了一些环境变量以便在命令中使用：
+# $BIN_DIR是安卓上可执行文件的路径
+# $PUBLIC_DIR是给所有容器的公共文件夹，可以通过它在不同容器间传递文件。通常是filesDir/public
+# $CONTAINER_DIR是容器目录
+# $CACHE_DIR是软件的缓存目录，$CACHE_DIR/tmp 是留给容器的 tmp 目录。
+# $EXTRA_ARGS 表示小小容器额外给启动命令添加的 proot 选项。
+# $EXTRA_PATH 表示小小容器额外给启动命令添加的可执行文件路径。
+# $EXTRA_LD_LIBRARY_PATH 表示小小容器额外给启动命令添加的库路径。
+# $EXTRA_LD_PRELOAD 表示小小容器额外给启动命令添加的预加载库路径。
+# $EXTRA_ENV 表示小小容器额外给启动命令添加的环境变量。
+boot_command: >
+  $BIN_DIR/proot $EXTRA_ARGS -H --kill-on-exit --link2symlink --sysvipc
+  --kernel-release="Linux localhost 6.17.0-PRoot-Distro #1 SMP PREEMPT_DYNAMIC Fri, 10 Oct 2025 00:00:00 +0000 aarch64 localdomain -1"
+  -L --change-id=1000:1000 --rootfs=$CONTAINER_DIR --cwd=/home/tiny
+  --bind=/data --bind=/dev --bind=/proc --bind=/sys --bind=/dev/urandom:/dev/random
+  --bind=/proc/self/fd:/dev/fd --bind=/proc/self/fd/0:/dev/stdin --bind=/proc/self/fd/1:/dev/stdout --bind=/proc/self/fd/2:/dev/stderr
+  --bind=$CONTAINER_DIR/sys/.empty:/sys/fs/selinux
+  --bind=$CONTAINER_DIR/proc/.loadavg:/proc/loadavg
+  --bind=$CONTAINER_DIR/proc/.stat:/proc/stat
+  --bind=$CONTAINER_DIR/proc/.uptime:/proc/uptime
+  --bind=$CONTAINER_DIR/proc/.version:/proc/version
+  --bind=$CONTAINER_DIR/proc/.vmstat:/proc/vmstat
+  --bind=$CONTAINER_DIR/proc/.sysctl_entry_cap_last_cap:/proc/sys/kernel/cap_last_cap
+  --bind=$CONTAINER_DIR/proc/.sysctl_inotify_max_user_watches:/proc/sys/fs/inotify/max_user_watches
+  --bind=$CACHE_DIR/tmp:/dev/shm
+  --bind=$CACHE_DIR/tmp:/tmp
+  --bind=$CACHE_DIR/run:/run
+  --mount=$PUBLIC_DIR:/home/tiny/公共
+  --mount=/storage/self/primary:/mnt/sdcard
+  /usr/bin/env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$EXTRA_PATH
+  LD_LIBRARY_PATH=$EXTRA_LD_LIBRARY_PATH LD_PRELOAD=$EXTRA_LD_PRELOAD
+  DISPLAY=:6 LANG=zh_CN.UTF-8
+  MOZ_FAKE_NO_SANDBOX=1 QTWEBENGINE_DISABLE_SANDBOX=1 ELECTRON_DISABLE_SANDBOX=1
+  HOME=/home/tiny USER=tiny $EXTRA_ENV
+  TERM=xterm-256color COLORTERM=truecolor /bin/bash -l
+# 这段命令会在导出容器时在安卓侧执行，然后需要在公共文件夹生成一个 rootfs.tar.zst 导出文件。
+# 软件会找到此文件并重命名为code-时间戳.tar.zst，并默认放到 Document 文件夹。
+# 是的，导出的命令需要你自己提供！因为我不知道哪些文件需要打包到 rootfs 中
+# 这个例子中以 root 身份进入容器，然后执行 /opt/tiny/export.sh 定义的导出步骤。
+# “导出”代表这个容器是分享给其他人使用的，所以默认的例子会先执行可能的隐私文件清理
+# 请确认它不会误删你的文件。
+export_command: >
+  $BIN_DIR/proot -H --kill-on-exit --link2symlink --sysvipc
+  --kernel-release="Linux localhost 6.17.0-PRoot-Distro #1 SMP PREEMPT_DYNAMIC Fri, 10 Oct 2025 00:00:00 +0000 aarch64 localdomain -1"
+  -L --rootfs=$CONTAINER_DIR --cwd=/root
+  --bind=/data --bind=/dev --bind=/proc --bind=/sys --bind=/dev/urandom:/dev/random
+  --bind=/proc/self/fd:/dev/fd --bind=/proc/self/fd/0:/dev/stdin --bind=/proc/self/fd/1:/dev/stdout --bind=/proc/self/fd/2:/dev/stderr
+  --bind=$CONTAINER_DIR/sys/.empty:/sys/fs/selinux
+  --bind=$CONTAINER_DIR/proc/.loadavg:/proc/loadavg
+  --bind=$CONTAINER_DIR/proc/.stat:/proc/stat
+  --bind=$CONTAINER_DIR/proc/.uptime:/proc/uptime
+  --bind=$CONTAINER_DIR/proc/.version:/proc/version
+  --bind=$CONTAINER_DIR/proc/.vmstat:/proc/vmstat
+  --bind=$CONTAINER_DIR/proc/.sysctl_entry_cap_last_cap:/proc/sys/kernel/cap_last_cap
+  --bind=$CONTAINER_DIR/proc/.sysctl_inotify_max_user_watches:/proc/sys/fs/inotify/max_user_watches
+  --bind=$CACHE_DIR/tmp:/dev/shm
+  --bind=$CACHE_DIR/tmp:/tmp
+  --bind=$CACHE_DIR/run:/run
+  --mount=$PUBLIC_DIR:/公共
+  /usr/bin/env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  LANG=zh_CN.UTF-8
+  TERM=xterm-256color COLORTERM=truecolor /bin/bash /opt/tiny/export.sh
+# 快捷命令的每一项的类型可以是“命令集合”或“命令”。
+# 如果类型是命令，就需要包含名称、简介（可以缺失）、命令内容。
+# 如果类型是命令集合，就需要包含名称、简介（可以缺失）、一堆命令。
+# 当用户希望重置快捷命令时，会以默认快捷命令恢复。
+quick_commands:
+  - type: "command"
+    name: 检查软件包更新并升级
+    description: 一次性进行修复、更新、升级、清理软件包操作。不是更新小小容器软件本身！
+    command: >
+      sudo dpkg --configure -a && sudo apt update &&
+      sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+      -o Dpkg::Options::="--force-confdef"
+      -o Dpkg::Options::="--force-confold" full-upgrade &&
+      sudo apt autoremove -y
+  - type: "command"
+    name: 查看系统信息
+    description: 使用 fastfetch 查看系统信息
+    command: fastfetch --structure meow && fastfetch --logo none
+  - type: "command"
+    name: 清屏
+    command: clear
+  - type: "command"
+    name: 中断
+    description: 向当前会话发送 Ctrl + C
+    command: "\x03"
+  - type: "command"
+    name: 清理包管理器缓存
+    command: sudo apt clean
+  - type: "commands"
+    name: 安装 XFCE 图形界面
+    description: 基本上预装 XFCE 的容器就是这么做的。
+    commands:
+    - type: "command"
+      name: 安装图形界面
+      description: 一次性安装 xfce, tigervnc和pipewire。
+      command: >
+        sudo apt update &&
+        sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+        -o Dpkg::Options::="--force-confdef"
+        -o Dpkg::Options::="--force-confold" install dbus-x11 xfce4 tigervnc-standalone-server pipewire &&
+        sudo apt autoremove --purge pulseaudio
+    - type: "command"
+      name: 安装 Yaru 主题
+      description: "会让你的界面看上去像 Ubuntu。\n仅安装主题，不包含配置步骤。\n你仍需要去外观设置手动选择主题，手动更换图标、壁纸、边栏位置等等。"
+      command: >
+        sudo apt update &&
+        sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+        -o Dpkg::Options::="--force-confdef"
+        -o Dpkg::Options::="--force-confold" install yaru-theme-gtk yaru-theme-icon
+    - type: "command"
+      name: 安装 Breeze 主题
+      description: "会让你的界面看上去像使用 KDE 的桌面。\n仅安装主题，不包含配置步骤。\n你仍需要去外观设置手动选择主题，手动更换图标、壁纸、边栏位置等等。"
+      command: >
+        sudo apt update &&
+        sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+        -o Dpkg::Options::="--force-confdef"
+        -o Dpkg::Options::="--force-confold" install breeze-gtk-theme breeze-icon-theme breeze-wallpaper breeze-cursor-theme
+    - type: "command"
+      name: 安装 rime 输入法
+      description: 安装 fcitx rime 输入法。安装后需要去选项配置-杂项中启用 fcitx 输入法。
+      command: >
+        sudo apt update &&
+        sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+        -o Dpkg::Options::="--force-confdef"
+        -o Dpkg::Options::="--force-confold" install fcitx5-rime
+  - type: "commands"
+    name: 软件管理
+    description: |
+      在这里安装或卸载少数几个软件。想要更多还得自行熟悉 Linux 系统操作...
+      已安装的软件可以在图形界面左下角开始菜单中找到
+    commands:
+      - type: "commands"
+        name: 办公软件 OnlyOffice
+        description: |
+          如果你不执着于使用 WPS，那么 OnlyOffice 是个不错的替代。
+          OnlyOffice 有安卓版本
+        commands:
+          - type: "command"
+            name: 安装
+            command: >
+              wget https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_arm64.deb -O /tmp/office.deb &&
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install patchelf /tmp/office.deb;
+              patchelf --clear-execstack /opt/onlyoffice/desktopeditors/libQt5Gui.so.5;
+              rm /tmp/office.deb
+          - type: "command"
+            name: 卸载
+            command: sudo apt autoremove --purge -y onlyoffice-desktopeditors
+      - type: "commands"
+        name: 图形处理软件 Krita
+        description: |
+          虽然其实是绘画软件！
+          强烈建议关闭 Krita 软件内的图形加速，这样会流畅很多，搭配 Termux:X11 完全可以画画。
+          Krita 有安卓版本
+        commands:
+          - type: "command"
+            name: 安装
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install krita krita-l10n
+          - type: "command"
+            name: 卸载
+            command: sudo apt autoremove --purge -y krita krita-l10n
+      - type: "commands"
+        name: 科学计算软件 Octave
+        description: 一定程度上可以作为 Matlab 的平替。
+        commands:
+          - type: "command"
+            name: 安装
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install octave
+          - type: "command"
+            name: 卸载
+            command: sudo apt autoremove --purge -y octave
+      - type: "commands"
+        name: 视频剪辑软件 Kdenlive
+        commands:
+          - type: "command"
+            name: 安装
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install kdenlive
+          - type: "command"
+            name: 卸载
+            command: sudo apt autoremove --purge -y kdenlive
+      - type: "commands"
+        name: Chromium 浏览器
+        description: |
+          安装后，通过 Chromium No Sandbox 来打开浏览器。
+          目前一个已知问题是 Chromium 无法登录谷歌账号，原因不明。
+        commands:
+          - type: "command"
+            name: 安装
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install chromium chromium-l10n -y &&
+              cp /usr/share/applications/chromium.desktop /usr/share/applications/chromium-no-sandbox.desktop &&
+              sed -i '/^Name\[.*\]=.*/d; s/^Name=.*/Name=Chromium No Sandbox/' /usr/share/applications/chromium-no-sandbox.desktop &&
+              sed -i 's#Exec=/usr/bin/chromium %U#Exec=/usr/bin/chromium --no-sandbox %U#g' /usr/share/applications/chromium-no-sandbox.desktop
+          - type: "command"
+            name: 卸载
+            command: sudo apt autoremove --purge -y chromium chromium-l10n && rm /usr/share/applications/chromium-no-sandbox.desktop
+      - type: "commands"
+        name: Visual Studio Code
+        description: 安装后，通过 Code No Sandbox 来打开 VS Code 。
+        commands:
+          - type: "command"
+            name: "安装"
+            command: >
+              curl -L -o /tmp/vscode.deb 'https://aka.ms/linux-arm64-deb' &&
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install /tmp/vscode.deb &&
+              cp /usr/share/applications/code.desktop /usr/share/applications/code-no-sandbox.desktop &&
+              sed -i '/^Name$$.*$$=.*/d; s/^Name=.*/Name=Code No Sandbox/' /usr/share/applications/code-no-sandbox.desktop &&
+              sed -i 's#Exec=/usr/share/code/code %F#Exec=/usr/share/code/code --no-sandbox %F#g' /usr/share/applications/code-no-sandbox.desktop;
+              rm /tmp/vscode.deb
+          - type: "command"
+            name: "卸载"
+            command: |
+              sudo apt autoremove --purge -y code && sudo rm -f /usr/share/applications/code-no-sandbox.desktop
+      - type: "commands"
+        name: 星火应用商店
+        description: |
+          注意小小容器的linux环境和正常的linux电脑不同，许多应用不经过修补无法正常使用。所以很容易出现星火应用商店中下载安装的应用无法安装或使用的情况。
+          建议只有当你确定某个应用可以使用时再安装它
+        commands:
+          - type: "command"
+            name: 安装
+            command: >
+              wget $(curl -s https://gitee.com/api/v5/repos/spark-store-project/spark-store/releases/latest | grep -o '"browser_download_url":[^}]*arm64\.deb[^}]*' | sed 's/.*"browser_download_url":"\([^"]*\)".*/\1/') -O /tmp/spark.deb &&
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install /tmp/spark.deb -y; rm /tmp/spark.deb
+          - type: "command"
+            name: 卸载
+            command: sudo apt autoremove --purge -y chromium chromium-l10n && rm /usr/share/applications/chromium-no-sandbox.desktop
+      - type: "commands"
+        name: JetBrains 系列软件
+        description: |
+          就是 PyCharm、Clion、Intellij IDEA 等等那些！
+          只要改命令内的名称和版本就可以切换软件和版本。
+          所有支持的名称和版本可以下面的链接找到。
+          https://github.com/JonasGroeger/jetbrains-ppa/tree/master/deb
+          另外，JetBrains IDE 使用时可能比较卡顿。
+          *代码尽量放在小小容器内部而不是安卓侧存储空间。这是因为存储空间的文件没有可执行权限，可能影响代码执行。
+        commands:
+          - type: "commands"
+            name: PyCharm 2026.1.2
+            commands:
+              - type: "command"
+                name: "安装"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh pycharm 2026.1.2"
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y pycharm"
+          - type: "commands"
+            name: CLion 2026.1.3
+            commands:
+              - type: "command"
+                name: "安装"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh clion 2026.1.3"
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y clion"
+          - type: "commands"
+            name: GoLand 2026.1.3
+            commands:
+              - type: "command"
+                name: "安装"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh goland 2026.1.3"
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y goland"
+          - type: "commands"
+            name: Intellij IDEA 2026.1.3
+            commands:
+              - type: "command"
+                name: "安装"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh intellij-idea 2026.1.3"
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y intellij-idea"
+          - type: "commands"
+            name: RustRover 2026.1.3
+            commands:
+              - type: "command"
+                name: "安装"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh rustrover 2026.1.3"
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y rustrover"
+          - type: "commands"
+            name: WebStorm 2026.1.3
+            commands:
+              - type: "command"
+                name: "安装"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh webstorm 2026.1.3"
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y webstorm"
+      - type: "commands"
+        name: 常用国产软件
+        description: 安装或卸载常用的国产软件。
+        commands:
+          - type: "commands"
+            name: WPS Office
+            commands:
+              - type: "command"
+                name: "安装"
+                description: 如果安装失败，可以通过星火应用商店安装。
+                command: |
+                  cat << 'EOF' | sh && sudo dpkg --configure -a && sudo apt update && sudo apt install -y /tmp/wps.deb libxslt1.1
+                  wget https://mirrors.sdu.edu.cn/spark-store/arm64-store/office/wps-office/wps-office_11.1.0.11720-fix4_arm64.deb -O /tmp/wps.deb
+                  EOF
+                  rm /tmp/wps.deb
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y wps-office"
+          - type: "commands"
+            name: CAJViewer
+            commands:
+              - type: "command"
+                name: "安装"
+                command: "wget https://download.cnki.net/cajPackage/tongxinUOS/signed_cajviewer_9.5.0-25268_arm64.deb -O /tmp/caj.deb && sudo apt update && sudo apt install -y /tmp/caj.deb; rm /tmp/caj.deb"
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y cajviewer"
+          - type: "commands"
+            name: 亿图图示
+            commands:
+              - type: "command"
+                name: "安装"
+                command: "wget https://cc-download.wondershare.cc/business/prd/edrawmax_13.1.0-1_arm64_binner.deb -O /tmp/edraw.deb && sudo apt update && sudo apt install -y /tmp/edraw.deb && bash /opt/tiny/edraw/postinst; rm /tmp/edraw.deb"
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y edrawmax libldap-2.4-2"
+          - type: "commands"
+            name: QQ
+            commands:
+              - type: "command"
+                name: "安装"
+                command: |
+                  wget $(curl -s https://cdn-go.cn/qq-web/im.qq.com_new/latest/rainbow/linuxConfig.js | grep -oP '"armDownloadUrl":{[^}]*"deb":"\K[^"]+') -O /tmp/qq.deb && sudo apt update && sudo apt install -y /tmp/qq.deb && sed -i 's#Exec=/opt/QQ/qq %U#Exec=/opt/QQ/qq --no-sandbox %U#g' /usr/share/applications/qq.desktop; rm /tmp/qq.deb
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y linuxqq"
+          - type: "commands"
+            name: 微信
+            commands:
+              - type: "command"
+                name: "安装"
+                command: "wget https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.deb -O /tmp/wechat.deb && sudo apt update && sudo apt install -y /tmp/wechat.deb; rm /tmp/wechat.deb"
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y wechat"
+          - type: "commands"
+            name: 钉钉
+            commands:
+              - type: "command"
+                name: "安装"
+                command: |
+                  wget $(curl -sw %{redirect_url} https://www.dingtalk.com/win/d/qd=linux_arm64) -O /tmp/dingtalk.deb && sudo apt update && sudo apt install -y /tmp/dingtalk.deb libglut3.12 libglu1-mesa && sed -i 's#\./com.alibabainc.dingtalk#\./com.alibabainc.dingtalk --no-sandbox#g' /opt/apps/com.alibabainc.dingtalk/files/Elevator.sh; rm /tmp/dingtalk.deb
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y com.alibabainc.dingtalk"
+          - type: "commands"
+            name: 同花顺
+            commands:
+              - type: "command"
+                name: "安装"
+                command: |
+                  wget https://sp.thsi.cn/staticS3/mobileweb-upload-static-server.file/app_6/downloadcenter/cn.com.10jqka_kylin_2.9.1.1_arm64.deb -O /tmp/cn.com.10jqka.deb && wget http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1w-0+deb11u5_arm64.deb -O /tmp/libssl1.1.deb && sudo apt update && sudo apt install -y /tmp/libssl1.1.deb /tmp/cn.com.10jqka.deb; rm /tmp/cn.com.10jqka.deb /tmp/libssl1.1.deb
+              - type: "command"
+                name: "卸载"
+                command: "sudo apt autoremove --purge -y cn.com.10jqka"
+  - type: "commands"
+    name: 运行 Windows 软件
+    description: |
+      安装 Hangover Wine，通过 Hangover 运行 exe。
+      运行慢、运行失败等等都是十分正常的。
+      *Windows 软件尽量放在小小容器内部而不是安卓侧存储空间。这是因为存储空间的文件没有可执行权限，可能影响软件运行。
+    commands:
+      - type: "commands"
+        name: 安装和卸载
+        description: |
+          如果安装失败，你也可以亲自前往
+          https://github.com/AndreRH/hangover/releases
+          下载最新的 Debian 13 版本。
+        commands:
+          - type: "command"
+            name: 安装 Hangover 11.9
+            description: 安装前，请先在选项配置-杂项中启用 Hangover 配置并重启容器！
+            command: bash /opt/tiny/extra/install-hangover-stable.sh
+          - type: "command"
+            name: 安装 Hangover 最新版
+            description: 安装前，请先在选项配置-杂项中启用 Hangover 配置并重启容器！
+            command: bash /opt/tiny/extra/install-hangover.sh
+          - type: "command"
+            name: 卸载
+            command: sudo apt autoremove --purge -y hangover*
+          - type: "command"
+            name: 抹除 Wine 数据
+            command: rm -rf ~/.wine
+      - type: "commands"
+        name: Wine 实用命令
+        description: 必须安装并启用了 Hangover 才能使用的命令。
+        commands:
+          - type: "command"
+            name: "Wine配置"
+            command: "winecfg &"
+          - type: "command"
+            name: "修复方块字"
+            command: "regedit Z:\\\\opt\\\\tiny\\\\extra\\\\chn_fonts.reg && wine reg delete \"HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\FontSubstitutes\" /va /f"
+          - type: "command"
+            name: "开始菜单文件夹"
+            command: "wine explorer \"C:\\\\ProgramData\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\" &"
+          - type: "command"
+            name: "开启DXVK"
+            description: DXVK在Hangover安装后默认是关闭状态。
+            command: |
+              WINEDLLOVERRIDES="d3d8=n,d3d9=n,d3d10core=n,d3d11=n,dxgi=n" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d8 /d native /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=n,d3d9=n,d3d10core=n,d3d11=n,dxgi=n" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d9 /d native /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=n,d3d9=n,d3d10core=n,d3d11=n,dxgi=n" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d10core /d native /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=n,d3d9=n,d3d10core=n,d3d11=n,dxgi=n" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d11 /d native /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=n,d3d9=n,d3d10core=n,d3d11=n,dxgi=n" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v dxgi /d native /f >/dev/null 2>&1
+          - type: "command"
+            name: "关闭DXVK"
+            command: |
+              WINEDLLOVERRIDES="d3d8=b,d3d9=b,d3d10core=b,d3d11=b,dxgi=b" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d8 /d builtin /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=b,d3d9=b,d3d10core=b,d3d11=b,dxgi=b" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d9 /d builtin /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=b,d3d9=b,d3d10core=b,d3d11=b,dxgi=b" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d10core /d builtin /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=b,d3d9=b,d3d10core=b,d3d11=b,dxgi=b" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d11 /d builtin /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=b,d3d9=b,d3d10core=b,d3d11=b,dxgi=b" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v dxgi /d builtin /f >/dev/null 2>&1
+          - type: "command"
+            name: "我的电脑"
+            command: "wine explorer &"
+          - type: "command"
+            name: "记事本"
+            command: "notepad &"
+          - type: "command"
+            name: "扫雷"
+            command: "winemine &"
+          - type: "command"
+            name: "注册表"
+            command: "regedit &"
+          - type: "command"
+            name: "控制面板"
+            command: "wine control &"
+          - type: "command"
+            name: "文件管理器"
+            command: "winefile &"
+          - type: "command"
+            name: "任务管理器"
+            command: "wine taskmgr &"
+          - type: "command"
+            name: "IE浏览器"
+            description: 目前 Wine Gecko 没有 arm64 版本，所以这一项其实是不可用的。不知道最近的 AI 能不能带来一些转机......
+            command: "wine iexplore &"
+          - type: "command"
+            name: "强制关闭Wine"
+            command: "wineserver -k && wineserver -p"
+# 选项可以被开启或关闭，在下一次启动时生效。
+# env, path, ld_library_path, ld_preload, args, pre_start_host_command, post_end_host_command, post_start_container_command
+# 选项应该包含类型、名称、简介（可以缺失）、新增环境变量（可以缺失）、新增PATH（可以缺失）、
+# 新增LD_LIBRARY_PATH（可以缺失）、新增LD_PRELOAD（可以缺失）、新增proot参数（可以缺失）
+# 启动前在安卓端执行命令（可以缺失）
+# 关闭后在安卓端执行命令（可以缺失）
+# 启动后在容器执行命令（可以缺失）
+# 选项集合应该包含类型、名称、简介（可以缺失）、一堆选项
+options:
+  - type: "option"
+    name: 高分辨率支持
+    description: 一键开启高清模式，显示更清晰的同时速度会变慢。
+    env: ["GDK_SCALE=2", "QT_FONT_DPI=192"]
+    enabled: false
+  - type: "options"
+    name: 杂项
+    options:
+      - type: "option"
+        name: 常用文件夹挂载
+        description: 将安卓对应文件夹挂载到容器的主文件夹。注意整个外置存储其实已经被挂载至 /mnt/sdcard，不受此处控制。
+        args:
+          - --mount=/storage/self/primary/Pictures:/home/tiny/图片
+          - --mount=/storage/self/primary/Music:/home/tiny/音乐
+          - --mount=/storage/self/primary/Movies:/home/tiny/视频
+          - --mount=/storage/self/primary/Download:/home/tiny/下载
+          - --mount=/storage/self/primary/DCIM:/home/tiny/照片
+          - --mount=/storage/self/primary/Documents:/home/tiny/文档
+        enabled: true
+      - type: "option"
+        name: 常用字体位置挂载
+        description: 将挂载安卓系统字体位置、容器预置字体位置、以及安卓侧 WPS、永中Office 读取的字体位置。
+        args:
+          - --mount=/storage/self/primary/Fonts:/usr/share/fonts/wpsm
+          - --mount=/storage/self/primary/AppFiles/Fonts:/usr/share/fonts/yozom
+          - --mount=/system/fonts:/usr/share/fonts/androidm
+          - --mount=$CONTAINER_DIR/opt/tiny/font:/usr/share/fonts/tiny
+        enabled: true
+      - type: "option"
+        name: 音频库挂载
+        description: 让容器内音频和麦克风工作的先决条件。如果你完全不需要音频，可以关闭以节省性能。
+        args:
+          - "--mount=$CONTAINER_DIR/opt/tiny/pipewire/90-tiny-audio.conf:/etc/pipewire/pipewire.conf.d/90-tiny-audio.conf"
+          - "--mount=$CONTAINER_DIR/opt/tiny/pipewire/91-tiny-microphone.conf:/etc/pipewire/pipewire.conf.d/91-tiny-microphone.conf"
+          - "--mount=$CONTAINER_DIR/opt/tiny/pipewire/libpipewire-module-tiny-audio.so:/usr/lib/aarch64-linux-gnu/pipewire-0.3/libpipewire-module-tiny-audio.so"
+          - "--mount=$CONTAINER_DIR/opt/tiny/pipewire/libpipewire-module-tiny-microphone.so:/usr/lib/aarch64-linux-gnu/pipewire-0.3/libpipewire-module-tiny-microphone.so"
+        enabled: true
+      - type: "option"
+        name: 启用 fcitx 输入法
+        description: |
+          启用以确保容器能识别已安装的 fcitx 输入法。
+          按 Ctrl + 空格 来切换输入法。
+        args:
+          - --mount=$CONTAINER_DIR/usr/share/applications/org.fcitx.Fcitx5.desktop:/home/tiny/.config/autostart/org.fcitx.Fcitx5.desktop
+        env:
+          - SDL_IM_MODULE=fcitx
+          - XMODIFIERS=@im=fcitx
+          - QT_IM_MODULE=fcitx
+          - GTK_IM_MODULE=fcitx
+        enabled: false
+      - type: "option"
+        name: Hangover 配置
+        description: 启用以确保 Hangover 正常工作。
+        args:
+          - --wine=/usr/bin/wine
+        ld_preload:
+          - /opt/tiny/extra/libmmap_shim.so
+        post_start_container_command: wineserver -p
+        enabled: false
+  - type: "options"
+    name: 图形加速
+    description: >-
+      使用图形加速可部分利用设备GPU提升系统图形处理表现，
+      但由于设备差异也可能导致容器系统及软件运行不稳定甚至异常退出。
+    options:
+      - type: "option"
+        name: Virgl 加速
+        description: 使用 Virgl 为使用 OpenGL ES 的应用提供加速。
+        env: ["GALLIUM_DRIVER=virpipe"]
+        pre_start_host_command: >
+          $BIN_DIR/virgl_test_server --use-egl-surfaceless --use-gles
+          --socket-path=$CACHE_DIR/tmp/.virgl_test &
+        post_end_host_command: pkill virgl_test_server
+        enabled: false
+      - type: "options"
+        name: Adreno GPU 加速
+        description: >-
+          只有部分 Adreno GPU 可使用的加速选项。
+          以下选项最多选一个，其中“启用DRI3”只有在使用 Termux:X11 显示图形界面时才可用。
+        options:
+          - type: "option"
+            name: Turnip + Zink 加速
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/opt/tiny/extra/freedreno_icd.aarch64.json", "TU_DEBUG=noconform", "MESA_VK_WSI_DEBUG=sw"]
+            enabled: false
+          - type: "option"
+            name: 启用 DRI3 的 Turnip + Zink 加速
+            description: 你只应该在使用 Termux:X11 时使用它。
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/opt/tiny/extra/freedreno_icd.aarch64.json", "TU_DEBUG=noconform"]
+            enabled: false

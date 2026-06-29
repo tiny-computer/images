@@ -1,0 +1,808 @@
+# Example configuration below. Unless explicitly stated that a key can be omitted, all keys should be included.
+
+# The code must be a valid filename; the container will be placed in a folder named after this value.
+code: "trixie"
+name: "Debian Trixie"
+description: |
+  w... Debian boxed installation media!!!
+  
+  This is a command-line-only version with no pre-installed graphical interface.
+# Preview image. Must be an image URL.
+preview: "/opt/tiny/preview.png"
+# A webpage introducing your container. Can be omitted.
+# webpage: "https://www.github.com/Cateners/tiny_computer"
+# Tiny Container provides various features that can be used on demand.
+feature:
+  # "type" specifies the feature type to use. "audio" and "microphone" types can only appear once; only one graphical frontend can be enabled at a time.
+  # audio type
+  # When enabled, after the next container boot the Android side will read and play audio from cacheDir/tmp/.tiny.audio.
+  # The container must deliver audio to /tmp/.tiny.audio on its own. See the source code for format details.
+  - type: "audio"
+    name: "Audio Playback"
+    description: "When enabled, continuously captures audio from inside the container and plays it. Takes effect on the next container boot."
+    enabled: false
+  # microphone type
+  # When enabled, Tiny Container will request microphone permission and connect to cacheDir/tmp/.tiny.mic to send microphone audio.
+  # The container must process audio received from /tmp/.tiny.mic on its own. See the source code for format details.
+  # This can only be enabled temporarily; there is no "enabled" property.
+  - type: "microphone"
+    name: "Microphone Forwarding"
+    description: "Start the microphone and forward audio to the container in real time. Keeping the microphone on drains battery — remember to turn it off!"
+  # lstat-cache type
+  # If you have files or directories that won't change while the container is running and are accessed very frequently, they are good candidates for this list!
+  # The software caches lstat information for these files, so proot can use the cached data directly when resolving paths. May speed things up by ~0.1%.
+  - type: "lstat-cache"
+    name: "Cache Path Info"
+    description: |
+      The software caches lstat information for these paths, so proot can use the cached data directly when resolving paths. May speed things up by ~0.1%.
+      Of course, only add paths that you are certain will not change while the container is running.
+    # Provide real paths. You can use $CONTAINER_DIR (container directory) and $CACHE_DIR (cache directory).
+    path:
+      - $CONTAINER_DIR
+      - $CONTAINER_DIR/usr/bin
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu/libpci.so.3.13.0
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu/xfce4/panel/wrapper-2.0
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu/xfce4/panel
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu/xfce4
+      - $CONTAINER_DIR/usr/lib/aarch64-linux-gnu
+      - $CONTAINER_DIR/usr/lib/firefox-esr/firefox-esr
+      - $CONTAINER_DIR/usr/lib/firefox-esr
+      - $CONTAINER_DIR/usr/lib/python3.13
+      - $CONTAINER_DIR/usr/lib/wine/aarch64-unix/*
+      - $CONTAINER_DIR/usr/lib/wine/aarch64-unix
+      - $CONTAINER_DIR/usr/lib/wine/aarch64-windows
+      - $CONTAINER_DIR/usr/lib/wine
+      - $CONTAINER_DIR/usr/lib
+      - $CONTAINER_DIR/usr/libexec
+      - $CONTAINER_DIR/usr/local/share/polkit-1
+      - $CONTAINER_DIR/usr/local/share
+      - $CONTAINER_DIR/usr/local
+      - $CONTAINER_DIR/usr/share/applications/*
+      - $CONTAINER_DIR/usr/share/applications
+      - $CONTAINER_DIR/usr/share/fonts/*
+      - $CONTAINER_DIR/usr/share/fonts
+      - $CONTAINER_DIR/usr/share/fontconfig/conf.avail/*
+      - $CONTAINER_DIR/usr/share/fontconfig/conf.avail
+      - $CONTAINER_DIR/usr/share/fontconfig
+      - $CONTAINER_DIR/usr/share/mime
+      - $CONTAINER_DIR/usr/share/poppler
+      - $CONTAINER_DIR/usr/share/wine/fonts/*
+      - $CONTAINER_DIR/usr/share/wine/fonts
+      - $CONTAINER_DIR/usr/share/wine
+      - $CONTAINER_DIR/usr/share/X11
+      - $CONTAINER_DIR/usr/share/X11/xkb
+      - $CONTAINER_DIR/usr/share/zoneinfo/Asia/Shanghai
+      - $CONTAINER_DIR/usr/share/zoneinfo/Asia
+      - $CONTAINER_DIR/usr/share/zoneinfo
+      - $CONTAINER_DIR/usr/share
+      - $CONTAINER_DIR/usr
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache/data_3
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache/data_2
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache/data_1
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache/data_0
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache/index
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache/ShaderCache
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*/jcef_cache
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains/*
+      - $CONTAINER_DIR/home/tiny/.cache/JetBrains
+      - $CONTAINER_DIR/home/tiny/.cache
+      - $CONTAINER_DIR/home/tiny/.local/share/icons/.Fluent-base/*
+      - $CONTAINER_DIR/home/tiny/.local/share/icons/.Fluent-base
+      - $CONTAINER_DIR/home/tiny/.local/share/icons/Fluent
+      - $CONTAINER_DIR/home/tiny/.local/share/icons
+      - $CONTAINER_DIR/home/tiny/.local/share/fcitx5/themes
+      - $CONTAINER_DIR/home/tiny/.local/share/fcitx5
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon/bundles/current/jetbrainsd/bin/jetbrainsd
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon/bundles/current/jetbrainsd/bin
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon/bundles/current/jetbrainsd
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon/bundles/current
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon/bundles
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains/Daemon
+      - $CONTAINER_DIR/home/tiny/.local/share/JetBrains
+      - $CONTAINER_DIR/home/tiny/.local/share
+      - $CONTAINER_DIR/home/tiny/.local
+      - $CONTAINER_DIR/home/tiny/.wine/dosdevices/*
+      - $CONTAINER_DIR/home/tiny/.wine/dosdevices
+      - $CONTAINER_DIR/home/tiny/.wine/drive_c/windows/system32
+      - $CONTAINER_DIR/home/tiny/.wine/drive_c/windows
+      - $CONTAINER_DIR/home/tiny/.wine/drive_c
+      - $CONTAINER_DIR/home/tiny/.wine
+      - $CONTAINER_DIR/home/tiny
+      - $CONTAINER_DIR/home
+      - $CONTAINER_DIR/etc/apt
+      - $CONTAINER_DIR/etc/fonts/conf.avail/*
+      - $CONTAINER_DIR/etc/fonts/conf.avail
+      - $CONTAINER_DIR/etc/fonts/conf.d/*
+      - $CONTAINER_DIR/etc/fonts/conf.d
+      - $CONTAINER_DIR/etc/fonts
+      - $CONTAINER_DIR/etc/localtime
+      - $CONTAINER_DIR/etc/polkit-1/actions
+      - $CONTAINER_DIR/etc/polkit-1
+      - $CONTAINER_DIR/etc/shells
+      - $CONTAINER_DIR/etc
+      - $CONTAINER_DIR/var/lib/apt
+      - $CONTAINER_DIR/var/lib
+      - $CONTAINER_DIR/var
+      - $CACHE_DIR/tmp
+      - $CACHE_DIR/run
+      - $CONTAINER_DIR/opt/*/bin
+      - $CONTAINER_DIR/opt/*/jbr/lib/cef_server
+      - $CONTAINER_DIR/opt/*/jbr/lib
+      - $CONTAINER_DIR/opt/*/jbr
+      - $CONTAINER_DIR/opt/pycharm/plugins/python-ce/helpers/generator3
+      - $CONTAINER_DIR/opt/pycharm/plugins/python-ce/helpers
+      - $CONTAINER_DIR/opt/pycharm/plugins/python-ce
+      - $CONTAINER_DIR/opt/*/plugins
+      - $CONTAINER_DIR/opt/*
+      - $CONTAINER_DIR/opt/tiny/extra/*
+      - $CONTAINER_DIR/opt/tiny/extra
+      - $CONTAINER_DIR/opt
+      - $CONTAINER_DIR/root
+      - /proc/bus/pci/devices
+      - /proc/bus/pci
+      - /proc/bus
+      - /proc
+      - /system/fonts/*
+      - /system/fonts
+      - /system
+      - /sys/bus/pci
+      - /sys/bus
+      - /sys
+      - /dev
+      - $CONTAINER_DIR/home/tiny/.mozilla
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*/storage/permanent/chrome/idb
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*/storage/permanent/chrome
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*/storage/permanent
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*/storage/default
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*/storage
+      - $CONTAINER_DIR/home/tiny/.mozilla/firefox/*
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox/*/cache2/doomed
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox/*/cache2/entries
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox/*/cache2
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox/*
+      - $CONTAINER_DIR/home/tiny/.cache/mozilla/firefox/*/safebrowsing-updating
+    enabled: false
+  # Graphical frontends
+  # webview type
+  # When enabled, after the next container boot the command will be executed, and when the port is ready a full-screen WebView will load the link.
+  - type: "webview"
+    name: "WebView Frontend Example"
+    description: |
+      When enabled, after the next container boot the command will be executed, and when the port is ready a full-screen WebView will load the link.
+      When the link is shared, all instances of "localhost" and "127.0.0.1" will be replaced with the LAN IP address.
+    command: "# python3 -m http.server &"
+    # When the link is shared, all instances of "localhost" and "127.0.0.1" will be replaced with the LAN IP address.
+    link: "http://localhost:8000/"
+    enabled: false
+  # avnc type
+  # When enabled, after the next container boot the command will be executed, and when cacheDir/tmp/.tiny.vnc is ready, AVNC will load the link.
+  - type: "avnc"
+    name: "AVNC Frontend Example"
+    description: |
+      When enabled, after the next container boot the command will be executed, and when the /tmp/.tiny.vnc socket is ready, AVNC will load the link.
+      The IP and port will be ignored, but we still need to provide a URL for avnc to parse.
+    command: |
+      # sudo service dbus start; \
+      # eval `dbus-launch --sh-syntax`; \
+      # export XDG_RUNTIME_DIR="/tmp/runtime-tiny"; \
+      # mkdir -p $XDG_RUNTIME_DIR; \
+      # pipewire > /dev/null 2>&1 & \
+      # while [ ! -S "$XDG_RUNTIME_DIR/pipewire-0" ]; do sleep 0.1; done && \
+      # wireplumber > /dev/null 2>&1 & \
+      # pipewire-pulse > /dev/null 2>&1 & \
+      # Xtigervnc -geometry 1440x720 -ZlibLevel=0 -pn -rfbport -1 \
+      # -SendPrimary=off -SetPrimary=off -FrameRate=120 -rfbunixpath /tmp/.tiny.vnc -alwaysshared -a 5 -once -depth 24 \
+      # -SecurityTypes=None -desktop "Debian-GNU/Linux-13-(trixie)_pd-tiny-linux-vnc" :6 -extension MIT-SHM > /dev/null 2>&1 & \
+      # while [ ! -S "/tmp/.tiny.vnc" ]; do sleep 0.1; done && \
+      # startxfce4 > /dev/null 2>&1 &
+    # The IP and port will be ignored, but we still need to provide a URL for avnc to parse. The Android side reads information from cacheDir/tmp/.tiny.vnc.
+    link: "vnc://127.0.0.1:5906"
+    enabled: false
+    # When enabled, the resolution automatically adjusts to the screen size.
+    adapt_to_screen_size: true
+    # Scale ratio, range [-1, 1], mapping to [0.25, 4].
+    scale_ratio: 0
+  # x11 type
+  # When enabled, after the next container boot the xserver will be launched with the specified args, the command will be executed when the X11 socket is ready, and the Termux:X11 page will be started.
+  - type: "x11"
+    # After the container boots, the X server will be launched on port 7902 (hardcoded, currently cannot be changed) with the following arguments.
+    args: [":6", "-extension", "MIT-SHM"]
+    name: "Termux:X11 Frontend Example"
+    description: |
+      When enabled, after the next container boot the xserver will be launched with the specified args, the command will be executed when the X11 socket file is ready, and the Termux:X11 page will be started.
+      However, the args parameter needs to be edited manually in the configuration file (/.tiny.yaml).
+    command: |
+      # sudo service dbus start; \
+      # eval `dbus-launch --sh-syntax`; \
+      # export XDG_RUNTIME_DIR="/tmp/runtime-tiny"; \
+      # mkdir -p $XDG_RUNTIME_DIR; \
+      # pipewire > /dev/null 2>&1 & \
+      # while [ ! -S "$XDG_RUNTIME_DIR/pipewire-0" ]; do sleep 0.1; done && \
+      # wireplumber > /dev/null 2>&1 & \
+      # pipewire-pulse > /dev/null 2>&1 & \
+      # startxfce4 > /dev/null 2>&1 &
+    enabled: false
+# MUST NOT be omitted! This is the command to boot the container! Tiny Container needs it to successfully launch a shell inside the proot container.
+# I have preset some environment variables for use in the command:
+# $BIN_DIR is the path to executables on the Android side.
+# $PUBLIC_DIR is a shared folder for all containers, allowing file transfer between containers. Typically filesDir/public.
+# $CONTAINER_DIR is the container directory.
+# $CACHE_DIR is the app's cache directory; $CACHE_DIR/tmp is the tmp directory reserved for the container.
+# $EXTRA_ARGS represents additional proot options added to the boot command by Tiny Container.
+# $EXTRA_PATH represents additional executable search paths added to the boot command by Tiny Container.
+# $EXTRA_LD_LIBRARY_PATH represents additional library paths added to the boot command by Tiny Container.
+# $EXTRA_LD_PRELOAD represents additional preload library paths added to the boot command by Tiny Container.
+# $EXTRA_ENV represents additional environment variables added to the boot command by Tiny Container.
+boot_command: >
+  $BIN_DIR/proot $EXTRA_ARGS -H --kill-on-exit --link2symlink --sysvipc
+  --kernel-release="Linux localhost 6.17.0-PRoot-Distro #1 SMP PREEMPT_DYNAMIC Fri, 10 Oct 2025 00:00:00 +0000 aarch64 localdomain -1"
+  -L --change-id=1000:1000 --rootfs=$CONTAINER_DIR --cwd=/home/tiny
+  --bind=/data --bind=/dev --bind=/proc --bind=/sys --bind=/dev/urandom:/dev/random
+  --bind=/proc/self/fd:/dev/fd --bind=/proc/self/fd/0:/dev/stdin --bind=/proc/self/fd/1:/dev/stdout --bind=/proc/self/fd/2:/dev/stderr
+  --bind=$CONTAINER_DIR/sys/.empty:/sys/fs/selinux
+  --bind=$CONTAINER_DIR/proc/.loadavg:/proc/loadavg
+  --bind=$CONTAINER_DIR/proc/.stat:/proc/stat
+  --bind=$CONTAINER_DIR/proc/.uptime:/proc/uptime
+  --bind=$CONTAINER_DIR/proc/.version:/proc/version
+  --bind=$CONTAINER_DIR/proc/.vmstat:/proc/vmstat
+  --bind=$CONTAINER_DIR/proc/.sysctl_entry_cap_last_cap:/proc/sys/kernel/cap_last_cap
+  --bind=$CONTAINER_DIR/proc/.sysctl_inotify_max_user_watches:/proc/sys/fs/inotify/max_user_watches
+  --bind=$CACHE_DIR/tmp:/dev/shm
+  --bind=$CACHE_DIR/tmp:/tmp
+  --bind=$CACHE_DIR/run:/run
+  --mount=$PUBLIC_DIR:/home/tiny/Public
+  --mount=/storage/self/primary:/mnt/sdcard
+  /usr/bin/env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$EXTRA_PATH
+  LD_LIBRARY_PATH=$EXTRA_LD_LIBRARY_PATH LD_PRELOAD=$EXTRA_LD_PRELOAD
+  DISPLAY=:6 LANG=en_US.UTF-8
+  MOZ_FAKE_NO_SANDBOX=1 QTWEBENGINE_DISABLE_SANDBOX=1 ELECTRON_DISABLE_SANDBOX=1
+  HOME=/home/tiny USER=tiny $EXTRA_ENV
+  TERM=xterm-256color COLORTERM=truecolor /bin/bash -l
+# This command will be executed on the Android side when exporting the container, and it needs to generate a rootfs.tar.zst export file in the public folder.
+# The software will find this file, rename it to code-timestamp.tar.zst, and place it in the Documents folder by default.
+# Yes, you need to provide the export command yourself! Because I don't know which files should be packaged into the rootfs.
+# In this example, the container is entered as root and the export steps defined in /opt/tiny/export.sh are executed.
+# "Export" means this container is being shared with others, so the default example will first perform possible privacy file cleanup.
+# Please make sure it won't accidentally delete your files.
+export_command: >
+  $BIN_DIR/proot -H --kill-on-exit --link2symlink --sysvipc
+  --kernel-release="Linux localhost 6.17.0-PRoot-Distro #1 SMP PREEMPT_DYNAMIC Fri, 10 Oct 2025 00:00:00 +0000 aarch64 localdomain -1"
+  -L --rootfs=$CONTAINER_DIR --cwd=/root
+  --bind=/data --bind=/dev --bind=/proc --bind=/sys --bind=/dev/urandom:/dev/random
+  --bind=/proc/self/fd:/dev/fd --bind=/proc/self/fd/0:/dev/stdin --bind=/proc/self/fd/1:/dev/stdout --bind=/proc/self/fd/2:/dev/stderr
+  --bind=$CONTAINER_DIR/sys/.empty:/sys/fs/selinux
+  --bind=$CONTAINER_DIR/proc/.loadavg:/proc/loadavg
+  --bind=$CONTAINER_DIR/proc/.stat:/proc/stat
+  --bind=$CONTAINER_DIR/proc/.uptime:/proc/uptime
+  --bind=$CONTAINER_DIR/proc/.version:/proc/version
+  --bind=$CONTAINER_DIR/proc/.vmstat:/proc/vmstat
+  --bind=$CONTAINER_DIR/proc/.sysctl_entry_cap_last_cap:/proc/sys/kernel/cap_last_cap
+  --bind=$CONTAINER_DIR/proc/.sysctl_inotify_max_user_watches:/proc/sys/fs/inotify/max_user_watches
+  --bind=$CACHE_DIR/tmp:/dev/shm
+  --bind=$CACHE_DIR/tmp:/tmp
+  --bind=$CACHE_DIR/run:/run
+  --mount=$PUBLIC_DIR:/Public
+  /usr/bin/env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  LANG=en_US.UTF-8
+  TERM=xterm-256color COLORTERM=truecolor /bin/bash /opt/tiny/export.sh
+# Each quick command item can be either a "command" or a "commands" (command group).
+# A "command" type needs: name, description (optional), and command content.
+# A "commands" type needs: name, description (optional), and a list of sub-commands.
+# When the user wants to reset quick commands, they will be restored to these defaults.
+quick_commands:
+  - type: "command"
+    name: Check for updates and upgrade
+    description: Performs fix, update, upgrade, and cleanup in one go. This does NOT update the Tiny Container app itself!
+    command: >
+      sudo dpkg --configure -a && sudo apt update &&
+      sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+      -o Dpkg::Options::="--force-confdef"
+      -o Dpkg::Options::="--force-confold" full-upgrade &&
+      sudo apt autoremove -y
+  - type: "command"
+    name: View system info
+    description: View system information using fastfetch
+    command: fastfetch --structure meow && fastfetch --logo none
+  - type: "command"
+    name: Clear screen
+    command: clear
+  - type: "command"
+    name: Interrupt
+    description: Send Ctrl+C to the current session
+    command: "\x03"
+  - type: "command"
+    name: Clean package manager cache
+    command: sudo apt clean
+  - type: "commands"
+    name: Install XFCE Desktop
+    description: This is basically how containers with pre-installed XFCE are made.
+    commands:
+    - type: "command"
+      name: Install desktop environment
+      description: Install xfce, tigervnc, and pipewire in one go.
+      command: >
+        sudo apt update &&
+        sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+        -o Dpkg::Options::="--force-confdef"
+        -o Dpkg::Options::="--force-confold" install dbus-x11 xfce4 tigervnc-standalone-server pipewire &&
+        sudo apt autoremove --purge pulseaudio
+    - type: "command"
+      name: Install Yaru theme
+      description: "Makes your desktop look like Ubuntu.\nTheme installation only, no configuration steps included.\nYou still need to manually select the theme in Appearance Settings, and manually change icons, wallpaper, panel position, etc."
+      command: >
+        sudo apt update &&
+        sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+        -o Dpkg::Options::="--force-confdef"
+        -o Dpkg::Options::="--force-confold" install yaru-theme-gtk yaru-theme-icon
+    - type: "command"
+      name: Install Breeze theme
+      description: "Makes your desktop look like KDE.\nTheme installation only, no configuration steps included.\nYou still need to manually select the theme in Appearance Settings, and manually change icons, wallpaper, panel position, etc."
+      command: >
+        sudo apt update &&
+        sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+        -o Dpkg::Options::="--force-confdef"
+        -o Dpkg::Options::="--force-confold" install breeze-gtk-theme breeze-icon-theme breeze-wallpaper breeze-cursor-theme
+    - type: "command"
+      name: Install rime input method
+      description: Install fcitx rime input method. After installation, you need to enable fcitx input method in Options → Miscellaneous.
+      command: >
+        sudo apt update &&
+        sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+        -o Dpkg::Options::="--force-confdef"
+        -o Dpkg::Options::="--force-confold" install fcitx5-rime
+  - type: "commands"
+    name: Software Management
+    description: |
+      Install or uninstall a few applications here. For more, you'll need to learn Linux system operations...
+      Installed applications can be found in the start menu at the bottom-left corner of the graphical interface.
+    commands:
+      - type: "commands"
+        name: OnlyOffice
+        description: |
+          If you're not set on using WPS, OnlyOffice is a good alternative.
+          OnlyOffice also has an Android version.
+        commands:
+          - type: "command"
+            name: Install
+            command: >
+              wget https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_arm64.deb -O /tmp/office.deb &&
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install patchelf /tmp/office.deb;
+              patchelf --clear-execstack /opt/onlyoffice/desktopeditors/libQt5Gui.so.5;
+              rm /tmp/office.deb
+          - type: "command"
+            name: Uninstall
+            command: sudo apt autoremove --purge -y onlyoffice-desktopeditors
+      - type: "commands"
+        name: Krita
+        description: |
+          Actually a digital painting application!
+          Strongly recommend disabling GPU acceleration inside Krita — it will be much smoother. With Termux:X11, you can definitely draw with it.
+          Krita also has an Android version.
+        commands:
+          - type: "command"
+            name: Install
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install krita krita-l10n
+          - type: "command"
+            name: Uninstall
+            command: sudo apt autoremove --purge -y krita krita-l10n
+      - type: "commands"
+        name: Octave
+        description: Can serve as a Matlab alternative to some extent.
+        commands:
+          - type: "command"
+            name: Install
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install octave
+          - type: "command"
+            name: Uninstall
+            command: sudo apt autoremove --purge -y octave
+      - type: "commands"
+        name: Kdenlive
+        commands:
+          - type: "command"
+            name: Install
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install kdenlive
+          - type: "command"
+            name: Uninstall
+            command: sudo apt autoremove --purge -y kdenlive
+      - type: "commands"
+        name: Chromium Browser
+        description: |
+          After installation, open the browser via "Chromium No Sandbox".
+          A known issue: Chromium cannot log into Google accounts. The cause is unknown.
+        commands:
+          - type: "command"
+            name: Install
+            command: >
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install chromium chromium-l10n -y &&
+              cp /usr/share/applications/chromium.desktop /usr/share/applications/chromium-no-sandbox.desktop &&
+              sed -i '/^Name\[.*\]=.*/d; s/^Name=.*/Name=Chromium No Sandbox/' /usr/share/applications/chromium-no-sandbox.desktop &&
+              sed -i 's#Exec=/usr/bin/chromium %U#Exec=/usr/bin/chromium --no-sandbox %U#g' /usr/share/applications/chromium-no-sandbox.desktop
+          - type: "command"
+            name: Uninstall
+            command: sudo apt autoremove --purge -y chromium chromium-l10n && rm /usr/share/applications/chromium-no-sandbox.desktop
+      - type: "commands"
+        name: Visual Studio Code
+        description: After installation, open VS Code via "Code No Sandbox".
+        commands:
+          - type: "command"
+            name: "Install"
+            command: >
+              curl -L -o /tmp/vscode.deb 'https://aka.ms/linux-arm64-deb' &&
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install /tmp/vscode.deb &&
+              cp /usr/share/applications/code.desktop /usr/share/applications/code-no-sandbox.desktop &&
+              sed -i '/^Name$$.*$$=.*/d; s/^Name=.*/Name=Code No Sandbox/' /usr/share/applications/code-no-sandbox.desktop &&
+              sed -i 's#Exec=/usr/share/code/code %F#Exec=/usr/share/code/code --no-sandbox %F#g' /usr/share/applications/code-no-sandbox.desktop;
+              rm /tmp/vscode.deb
+          - type: "command"
+            name: "Uninstall"
+            command: |
+              sudo apt autoremove --purge -y code && sudo rm -f /usr/share/applications/code-no-sandbox.desktop
+      - type: "commands"
+        name: Spark Store
+        description: |
+          Note: the Linux environment inside Tiny Container differs from a normal Linux PC. Many applications will not work without patching.
+          It's very common for apps downloaded from the Spark Store to fail to install or run.
+          Only install an app if you're certain it will work.
+        commands:
+          - type: "command"
+            name: Install
+            command: >
+              wget $(curl -s https://gitee.com/api/v5/repos/spark-store-project/spark-store/releases/latest | grep -o '"browser_download_url":[^}]*arm64\.deb[^}]*' | sed 's/.*"browser_download_url":"\([^"]*\)".*/\1/') -O /tmp/spark.deb &&
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install /tmp/spark.deb -y; rm /tmp/spark.deb
+          - type: "command"
+            name: Uninstall
+            command: sudo apt autoremove --purge -y chromium chromium-l10n && rm /usr/share/applications/chromium-no-sandbox.desktop
+      - type: "commands"
+        name: JetBrains IDEs
+        description: |
+          PyCharm, CLion, IntelliJ IDEA, and more!
+          Simply change the name and version in the command to switch between IDEs and versions.
+          You can find all supported names and versions at the link below:
+          https://github.com/JonasGroeger/jetbrains-ppa/tree/master/deb
+          Note: JetBrains IDEs may be somewhat laggy in use.
+          * Keep your code inside the Tiny Container rather than on the Android storage. This is because files on Android storage lack execute permissions, which may affect code execution.
+        commands:
+          - type: "commands"
+            name: PyCharm 2026.1.2
+            commands:
+              - type: "command"
+                name: "Install"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh pycharm 2026.1.2"
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y pycharm"
+          - type: "commands"
+            name: CLion 2026.1.3
+            commands:
+              - type: "command"
+                name: "Install"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh clion 2026.1.3"
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y clion"
+          - type: "commands"
+            name: GoLand 2026.1.3
+            commands:
+              - type: "command"
+                name: "Install"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh goland 2026.1.3"
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y goland"
+          - type: "commands"
+            name: IntelliJ IDEA 2026.1.3
+            commands:
+              - type: "command"
+                name: "Install"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh intellij-idea 2026.1.3"
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y intellij-idea"
+          - type: "commands"
+            name: RustRover 2026.1.3
+            commands:
+              - type: "command"
+                name: "Install"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh rustrover 2026.1.3"
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y rustrover"
+          - type: "commands"
+            name: WebStorm 2026.1.3
+            commands:
+              - type: "command"
+                name: "Install"
+                command: "bash /opt/tiny/extra/install-jetbrains.sh webstorm 2026.1.3"
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y webstorm"
+      - type: "commands"
+        name: Common Chinese Software
+        description: Install or uninstall commonly used Chinese software.
+        commands:
+          - type: "commands"
+            name: WPS Office
+            commands:
+              - type: "command"
+                name: "Install"
+                description: If the installation fails, you can install it via the Spark Store.
+                command: |
+                  cat << 'EOF' | sh && sudo dpkg --configure -a && sudo apt update && sudo apt install -y /tmp/wps.deb libxslt1.1
+                  wget https://mirrors.sdu.edu.cn/spark-store/arm64-store/office/wps-office/wps-office_11.1.0.11720-fix4_arm64.deb -O /tmp/wps.deb
+                  EOF
+                  rm /tmp/wps.deb
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y wps-office"
+          - type: "commands"
+            name: CAJViewer
+            commands:
+              - type: "command"
+                name: "Install"
+                command: "wget https://download.cnki.net/cajPackage/tongxinUOS/signed_cajviewer_9.5.0-25268_arm64.deb -O /tmp/caj.deb && sudo apt update && sudo apt install -y /tmp/caj.deb; rm /tmp/caj.deb"
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y cajviewer"
+          - type: "commands"
+            name: EdrawMax
+            commands:
+              - type: "command"
+                name: "Install"
+                command: wget https://cc-download.wondershare.cc/business/prd/edrawmax_13.1.0-1_arm64_binner.deb -O /tmp/edraw.deb && sudo apt update && sudo apt install -y /tmp/edraw.deb && bash /opt/tiny/edraw/postinst && sudo sed -i 's/<Language V="cn"\/>/<Language V="en"\/>/g' /opt/apps/edrawmax/config/settings.xml; rm /tmp/edraw.deb
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y edrawmax libldap-2.4-2"
+          - type: "commands"
+            name: QQ
+            commands:
+              - type: "command"
+                name: "Install"
+                command: |
+                  wget $(curl -s https://cdn-go.cn/qq-web/im.qq.com_new/latest/rainbow/linuxConfig.js | grep -oP '"armDownloadUrl":{[^}]*"deb":"\K[^"]+') -O /tmp/qq.deb && sudo apt update && sudo apt install -y /tmp/qq.deb && sed -i 's#Exec=/opt/QQ/qq %U#Exec=/opt/QQ/qq --no-sandbox %U#g' /usr/share/applications/qq.desktop; rm /tmp/qq.deb
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y linuxqq"
+          - type: "commands"
+            name: WeChat
+            commands:
+              - type: "command"
+                name: "Install"
+                command: "wget https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.deb -O /tmp/wechat.deb && sudo apt update && sudo apt install -y /tmp/wechat.deb; rm /tmp/wechat.deb"
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y wechat"
+          - type: "commands"
+            name: DingTalk
+            commands:
+              - type: "command"
+                name: "Install"
+                command: |
+                  wget $(curl -sw %{redirect_url} https://www.dingtalk.com/win/d/qd=linux_arm64) -O /tmp/dingtalk.deb && sudo apt update && sudo apt install -y /tmp/dingtalk.deb libglut3.12 libglu1-mesa && sed -i 's#\./com.alibabainc.dingtalk#\./com.alibabainc.dingtalk --no-sandbox#g' /opt/apps/com.alibabainc.dingtalk/files/Elevator.sh; rm /tmp/dingtalk.deb
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y com.alibabainc.dingtalk"
+          - type: "commands"
+            name: Hithink RoyalFlush
+            commands:
+              - type: "command"
+                name: "Install"
+                command: |
+                  wget https://sp.thsi.cn/staticS3/mobileweb-upload-static-server.file/app_6/downloadcenter/cn.com.10jqka_kylin_2.9.1.1_arm64.deb -O /tmp/cn.com.10jqka.deb && wget http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1w-0+deb11u5_arm64.deb -O /tmp/libssl1.1.deb && sudo apt update && sudo apt install -y /tmp/libssl1.1.deb /tmp/cn.com.10jqka.deb; rm /tmp/cn.com.10jqka.deb /tmp/libssl1.1.deb
+              - type: "command"
+                name: "Uninstall"
+                command: "sudo apt autoremove --purge -y cn.com.10jqka"
+  - type: "commands"
+    name: Run Windows Software
+    description: |
+      Install Hangover Wine to run .exe files via Hangover.
+      Slow performance and execution failures are completely normal.
+      * Keep Windows software inside the Tiny Container rather than on the Android storage. This is because files on Android storage lack execute permissions, which may affect software execution.
+    commands:
+      - type: "commands"
+        name: Install and Uninstall
+        description: |
+          If installation fails, you can also go directly to
+          https://github.com/AndreRH/hangover/releases
+          to download the latest Debian 13 version.
+        commands:
+          - type: "command"
+            name: Install Hangover
+            description: Before installing, enable the Hangover config in Options → Miscellaneous and restart the container!
+            command: bash /opt/tiny/extra/install-hangover.sh
+          - type: "command"
+            name: Uninstall
+            command: sudo apt autoremove --purge -y hangover*
+          - type: "command"
+            name: Wipe Wine data
+            command: rm -rf ~/.wine
+      - type: "commands"
+        name: Useful Wine Commands
+        description: These commands require Hangover to be installed and enabled.
+        commands:
+          - type: "command"
+            name: "Wine Configuration"
+            command: "winecfg &"
+          - type: "command"
+            name: "Fix tofu characters"
+            command: "regedit Z:\\\\opt\\\\tiny\\\\extra\\\\chn_fonts.reg && wine reg delete \"HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\FontSubstitutes\" /va /f"
+          - type: "command"
+            name: "Start Menu folder"
+            command: "wine explorer \"C:\\\\ProgramData\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\" &"
+          - type: "command"
+            name: "Enable DXVK"
+            description: DXVK is disabled by default after Hangover installation.
+            command: |
+              WINEDLLOVERRIDES="d3d8=n,d3d9=n,d3d10core=n,d3d11=n,dxgi=n" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d8 /d native /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=n,d3d9=n,d3d10core=n,d3d11=n,dxgi=n" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d9 /d native /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=n,d3d9=n,d3d10core=n,d3d11=n,dxgi=n" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d10core /d native /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=n,d3d9=n,d3d10core=n,d3d11=n,dxgi=n" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d11 /d native /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=n,d3d9=n,d3d10core=n,d3d11=n,dxgi=n" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v dxgi /d native /f >/dev/null 2>&1
+          - type: "command"
+            name: "Disable DXVK"
+            command: |
+              WINEDLLOVERRIDES="d3d8=b,d3d9=b,d3d10core=b,d3d11=b,dxgi=b" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d8 /d builtin /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=b,d3d9=b,d3d10core=b,d3d11=b,dxgi=b" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d9 /d builtin /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=b,d3d9=b,d3d10core=b,d3d11=b,dxgi=b" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d10core /d builtin /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=b,d3d9=b,d3d10core=b,d3d11=b,dxgi=b" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d11 /d builtin /f >/dev/null 2>&1
+              WINEDLLOVERRIDES="d3d8=b,d3d9=b,d3d10core=b,d3d11=b,dxgi=b" wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v dxgi /d builtin /f >/dev/null 2>&1
+          - type: "command"
+            name: "My Computer"
+            command: "wine explorer &"
+          - type: "command"
+            name: "Notepad"
+            command: "notepad &"
+          - type: "command"
+            name: "Minesweeper"
+            command: "winemine &"
+          - type: "command"
+            name: "Registry Editor"
+            command: "regedit &"
+          - type: "command"
+            name: "Control Panel"
+            command: "wine control &"
+          - type: "command"
+            name: "File Manager"
+            command: "winefile &"
+          - type: "command"
+            name: "Task Manager"
+            command: "wine taskmgr &"
+          - type: "command"
+            name: "Internet Explorer"
+            description: Currently Wine Gecko has no arm64 version, so this item is actually unusable. Not sure if recent AI advances might bring a breakthrough...
+            command: "wine iexplore &"
+          - type: "command"
+            name: "Force close Wine"
+            command: "wineserver -k && wineserver -p"
+# Options can be enabled or disabled and take effect on the next boot.
+# env, path, ld_library_path, ld_preload, args, pre_start_host_command, post_end_host_command, post_start_container_command
+# An option should contain: type, name, description (optional), additional env vars (optional), additional PATH (optional),
+# additional LD_LIBRARY_PATH (optional), additional LD_PRELOAD (optional), additional proot args (optional),
+# pre-start command on the Android host (optional),
+# post-end command on the Android host (optional),
+# post-start command inside the container (optional).
+# An option group should contain: type, name, description (optional), and a list of sub-options.
+options:
+  - type: "option"
+    name: High Resolution Support
+    description: One-click HD mode. Display is sharper but performance will be slower.
+    env: ["GDK_SCALE=2", "QT_FONT_DPI=192"]
+    enabled: false
+  - type: "options"
+    name: Miscellaneous
+    options:
+      - type: "option"
+        name: Mount common folders
+        description: Mount the corresponding Android folders to the container's home directory. Note that the entire external storage is already mounted at /mnt/sdcard and is not controlled here.
+        args:
+          - --mount=/storage/self/primary/Pictures:/home/tiny/Pictures
+          - --mount=/storage/self/primary/Music:/home/tiny/Music
+          - --mount=/storage/self/primary/Movies:/home/tiny/Videos
+          - --mount=/storage/self/primary/Download:/home/tiny/Downloads
+          - --mount=/storage/self/primary/DCIM:/home/tiny/Photos
+          - --mount=/storage/self/primary/Documents:/home/tiny/Documents
+        enabled: true
+      - type: "option"
+        name: Mount common font locations
+        description: Mount the Android system font location, container preset font location, and the font locations read by WPS and Yozo Office on the Android side.
+        args:
+          - --mount=/storage/self/primary/Fonts:/usr/share/fonts/wpsm
+          - --mount=/storage/self/primary/AppFiles/Fonts:/usr/share/fonts/yozom
+          - --mount=/system/fonts:/usr/share/fonts/androidm
+          - --mount=$CONTAINER_DIR/opt/tiny/font:/usr/share/fonts/tiny
+        enabled: true
+      - type: "option"
+        name: Mount audio libraries
+        description: A prerequisite for audio and microphone to work inside the container. If you don't need audio at all, you can disable this to save performance.
+        args:
+          - "--mount=$CONTAINER_DIR/opt/tiny/pipewire/90-tiny-audio.conf:/etc/pipewire/pipewire.conf.d/90-tiny-audio.conf"
+          - "--mount=$CONTAINER_DIR/opt/tiny/pipewire/91-tiny-microphone.conf:/etc/pipewire/pipewire.conf.d/91-tiny-microphone.conf"
+          - "--mount=$CONTAINER_DIR/opt/tiny/pipewire/libpipewire-module-tiny-audio.so:/usr/lib/aarch64-linux-gnu/pipewire-0.3/libpipewire-module-tiny-audio.so"
+          - "--mount=$CONTAINER_DIR/opt/tiny/pipewire/libpipewire-module-tiny-microphone.so:/usr/lib/aarch64-linux-gnu/pipewire-0.3/libpipewire-module-tiny-microphone.so"
+        enabled: true
+      - type: "option"
+        name: Enable fcitx input method
+        description: |
+          Enable to let the container recognize installed fcitx input methods.
+          Press Ctrl + Space to switch input methods.
+        args:
+          - --mount=$CONTAINER_DIR/usr/share/applications/org.fcitx.Fcitx5.desktop:/home/tiny/.config/autostart/org.fcitx.Fcitx5.desktop
+        env:
+          - SDL_IM_MODULE=fcitx
+          - XMODIFIERS=@im=fcitx
+          - QT_IM_MODULE=fcitx
+          - GTK_IM_MODULE=fcitx
+        enabled: false
+      - type: "option"
+        name: Hangover configuration
+        description: Enable to ensure Hangover works properly.
+        args:
+          - --wine=/usr/bin/wine
+        ld_preload:
+          - /opt/tiny/extra/libmmap_shim.so
+        post_start_container_command: wineserver -p
+        enabled: false
+  - type: "options"
+    name: Graphics Acceleration
+    description: >-
+      Graphics acceleration can partially leverage the device GPU to improve system graphics performance,
+      but due to device differences it may also cause the container system and software to be unstable or even crash unexpectedly.
+    options:
+      - type: "option"
+        name: Virgl Acceleration
+        description: Use Virgl to accelerate applications that use OpenGL ES.
+        env: ["GALLIUM_DRIVER=virpipe"]
+        pre_start_host_command: >
+          $BIN_DIR/virgl_test_server --use-egl-surfaceless --use-gles
+          --socket-path=$CACHE_DIR/tmp/.virgl_test &
+        post_end_host_command: pkill virgl_test_server
+        enabled: false
+      - type: "options"
+        name: Adreno GPU Acceleration
+        description: >-
+          Acceleration options available only for certain Adreno GPUs.
+          Choose at most one of the following options. "Enable DRI3" is only available when using Termux:X11 to display the graphical interface.
+        options:
+          - type: "option"
+            name: Turnip + Zink Acceleration
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/opt/tiny/extra/freedreno_icd.aarch64.json", "TU_DEBUG=noconform", "MESA_VK_WSI_DEBUG=sw"]
+            enabled: false
+          - type: "option"
+            name: Turnip + Zink Acceleration with DRI3
+            description: You should only use this with Termux:X11.
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/opt/tiny/extra/freedreno_icd.aarch64.json", "TU_DEBUG=noconform"]
+            enabled: false
