@@ -13,7 +13,19 @@ tar --zstd -cpvf /公共/rootfs.tar.zst .tiny.yaml bin boot etc home lib media m
     --transform='s|^proc/uptime$|proc/.uptime|' \
     --transform='s|^proc/version$|proc/.version|' \
     --transform='s|^proc/vmstat$|proc/.vmstat|' \
+    --transform='s|^proc/bus/pci/devices$|proc/.devices|' \
     --transform='s|^proc/sys/kernel/cap_last_cap$|proc/.sysctl_entry_cap_last_cap|' \
+    --transform='s|^proc/sys/kernel/overflowuid$|proc/.overflowuid|' \
+    --transform='s|^proc/sys/kernel/overflowgid$|proc/.overflowgid|' \
     --transform='s|^proc/sys/fs/inotify/max_user_watches$|proc/.sysctl_inotify_max_user_watches|' \
-    sys/fs/selinux proc/loadavg proc/stat proc/uptime proc/version proc/vmstat \
-    proc/sys/kernel/cap_last_cap proc/sys/fs/inotify/max_user_watches
+    sys/fs/selinux \
+    proc/loadavg \
+    proc/stat \
+    proc/uptime \
+    proc/version \
+    proc/vmstat \
+    proc/bus/pci/devices \
+    proc/sys/kernel/cap_last_cap \
+    proc/sys/kernel/overflowuid \
+    proc/sys/kernel/overflowgid \
+    proc/sys/fs/inotify/max_user_watches

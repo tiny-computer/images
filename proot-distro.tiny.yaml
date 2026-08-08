@@ -28,6 +28,20 @@ feature:
   - type: "microphone"
     name: "麦克风转发"
     description: "启动麦克风，将音频实时转发到容器。麦克风持续开启会比较耗电，记得关闭！"
+  # print类型
+  # 如果启用，下次启动容器后安卓侧将启动IPP服务，创建cacheDir/run/cups系列文件监听打印请求。
+  - type: "print"
+    name: "打印服务"
+    description: "开启后，可将打印请求转发到安卓进行打印。下次启动容器时生效。"
+    enabled: false
+  # storage类型
+  # 如果启用，下次启动容器后将监听存储设备变动并自动挂载。
+  - type: "storage"
+    name: "存储感知"
+    description: |
+      自动将U盘或SD卡等存储介质挂载到/mnt目录下。
+      需要已被授予所有文件管理权限，且彻底重启软件后（如在安卓设置强行停止软件后再启动）才可用。
+    enabled: false
   # lstat-cache类型
   # 如果你认为某个文件或文件夹在容器运行时不会改变，而且它很频繁地被访问，就很适合放在这里！
   # 软件会缓存这些文件的lstat信息，此后proot在解析路径时直接读取缓存的信息。也许可以让运行快那么0.1%。
@@ -196,11 +210,12 @@ feature:
       # pipewire-pulse > /dev/null 2>&1 & \
       # Xtigervnc -geometry 1440x720 -ZlibLevel=0 -pn -rfbport -1 \
       # -SendPrimary=off -SetPrimary=off -FrameRate=120 -rfbunixpath /tmp/.tiny.vnc -alwaysshared -a 5 -once -depth 24 \
-      # -SecurityTypes=None -desktop "Debian-GNU/Linux-13-(trixie)_pd-tiny-linux-vnc" :6 -extension MIT-SHM > /dev/null 2>&1 & \
+      # -SecurityTypes=None -desktop "Debian-GNU/Linux-13-(trixie)_pd-tiny-linux-vnc" :6 +extension MIT-SHM > /dev/null 2>&1 & \
       # while [ ! -S "/tmp/.tiny.vnc" ]; do sleep 0.1; done && \
       # startxfce4 > /dev/null 2>&1 &
-    # ip和端口号会被忽略，但我们仍需要传入url以供avnc解析。安卓侧会读取cacheDir/tmp/.tiny.vnc的信息。
     link: "vnc://127.0.0.1:5906"
+    # 如果开启，ip和端口号会被忽略，但我们仍需要传入link以供avnc解析。安卓侧会读取cacheDir/tmp/.tiny.vnc的信息。
+    use_unix_socket: true
     enabled: false
     # 如果开启，会自动根据屏幕大小调整分辨率。
     adapt_to_screen_size: true
@@ -210,7 +225,7 @@ feature:
   # 如果启用，下次启动容器后将以args启动xserver，在X11套接字就绪后执行command，并启动Termux:X11页面
   - type: "x11"
     # 容器启动后，会按下列参数在端口 7902（硬编码，目前无法被更改）启动 X 服务器。
-    args: [":6", "-extension", "MIT-SHM"]
+    args: [":6", "+extension", "MIT-SHM"]
     name: "Termux:X11前端示例"
     description: |
       启用后，下次启动容器时将以args启动xserver，在X11套接字文件就绪后执行命令，并启动Termux:X11页面
@@ -249,7 +264,10 @@ boot_command: >
   --bind=$CONTAINER_DIR/proc/.uptime:/proc/uptime
   --bind=$CONTAINER_DIR/proc/.version:/proc/version
   --bind=$CONTAINER_DIR/proc/.vmstat:/proc/vmstat
+  --bind=$CONTAINER_DIR/proc/.devices:/proc/bus/pci/devices
   --bind=$CONTAINER_DIR/proc/.sysctl_entry_cap_last_cap:/proc/sys/kernel/cap_last_cap
+  --bind=$CONTAINER_DIR/proc/.overflowuid:/proc/sys/kernel/overflowuid
+  --bind=$CONTAINER_DIR/proc/.overflowgid:/proc/sys/kernel/overflowgid
   --bind=$CONTAINER_DIR/proc/.sysctl_inotify_max_user_watches:/proc/sys/fs/inotify/max_user_watches
   --bind=$CACHE_DIR/tmp:/dev/shm
   --bind=$CACHE_DIR/tmp:/tmp
@@ -280,7 +298,10 @@ export_command: >
   --bind=$CONTAINER_DIR/proc/.uptime:/proc/uptime
   --bind=$CONTAINER_DIR/proc/.version:/proc/version
   --bind=$CONTAINER_DIR/proc/.vmstat:/proc/vmstat
+  --bind=$CONTAINER_DIR/proc/.devices:/proc/bus/pci/devices
   --bind=$CONTAINER_DIR/proc/.sysctl_entry_cap_last_cap:/proc/sys/kernel/cap_last_cap
+  --bind=$CONTAINER_DIR/proc/.overflowuid:/proc/sys/kernel/overflowuid
+  --bind=$CONTAINER_DIR/proc/.overflowgid:/proc/sys/kernel/overflowgid
   --bind=$CONTAINER_DIR/proc/.sysctl_inotify_max_user_watches:/proc/sys/fs/inotify/max_user_watches
   --bind=$CACHE_DIR/tmp:/dev/shm
   --bind=$CACHE_DIR/tmp:/tmp
@@ -448,6 +469,39 @@ quick_commands:
             name: 卸载
             command: sudo apt autoremove --purge -y chromium chromium-l10n && rm /usr/share/applications/chromium-no-sandbox.desktop
       - type: "commands"
+        name: Chrome 浏览器
+        description: 需要特殊网络环境下载安装。安装后，通过 Chrome No Sandbox 来打开浏览器。
+        commands:
+          - type: "command"
+            name: "安装"
+            command: >
+              curl -L -o /tmp/chrome.deb 'https://dl.google.com/linux/direct/google-chrome-stable_current_arm64.deb' &&
+              sudo apt update &&
+              touch /etc/default/google-chrome &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install /tmp/chrome.deb &&
+              cp /usr/share/applications/com.google.Chrome.desktop /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i 's/^Name=Google Chrome/Name=Google Chrome (No Sandbox)/' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i '/^\[Desktop Action new-window\]$/,/^\[/ s/^Name=New Window/Name=New Window (No Sandbox)/' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i '/^\[Desktop Action new-private-window\]$/,/^\[/ s/^Name=New Incognito Window/Name=New Incognito Window (No Sandbox)/' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable %U|Exec=/usr/bin/google-chrome-stable --no-sandbox %U|' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable$|Exec=/usr/bin/google-chrome-stable --no-sandbox|' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable --incognito$|Exec=/usr/bin/google-chrome-stable --incognito --no-sandbox|' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              cp /usr/share/applications/google-chrome.desktop /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i 's/^Name=Google Chrome/Name=Google Chrome (No Sandbox)/' /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i '/^\[Desktop Action new-window\]$/,/^\[/ s/^Name=New Window/Name=New Window (No Sandbox)/' /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i '/^\[Desktop Action new-private-window\]$/,/^\[/ s/^Name=New Incognito Window/Name=New Incognito Window (No Sandbox)/' /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable %U|Exec=/usr/bin/google-chrome-stable --no-sandbox %U|' /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable$|Exec=/usr/bin/google-chrome-stable --no-sandbox|' /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable --incognito$|Exec=/usr/bin/google-chrome-stable --incognito --no-sandbox|' /usr/share/applications/google-chrome-no-sandbox.desktop;
+              rm /tmp/chrome.deb
+          - type: "command"
+            name: "卸载"
+            command: |
+              sudo apt autoremove --purge -y google-chrome-stable && sudo rm -f /usr/share/applications/com.google.Chrome-no-sandbox.desktop /usr/share/applications/google-chrome-no-sandbox.desktop
+      - type: "commands"
         name: Visual Studio Code
         description: 安装后，通过 Code No Sandbox 来打开 VS Code 。
         commands:
@@ -461,13 +515,18 @@ quick_commands:
               -o Dpkg::Options::="--force-confold"
               install /tmp/vscode.deb &&
               cp /usr/share/applications/code.desktop /usr/share/applications/code-no-sandbox.desktop &&
-              sed -i '/^Name$$.*$$=.*/d; s/^Name=.*/Name=Code No Sandbox/' /usr/share/applications/code-no-sandbox.desktop &&
-              sed -i 's#Exec=/usr/share/code/code %F#Exec=/usr/share/code/code --no-sandbox %F#g' /usr/share/applications/code-no-sandbox.desktop;
+              sed -i 's/^Name=Visual Studio Code/Name=Visual Studio Code (No Sandbox)/' /usr/share/applications/code-no-sandbox.desktop &&
+              sed -i '/^\[Desktop Action new-empty-window\]$/,/^\[/ s/^Name=New Empty Window/Name=New Empty Window (No Sandbox)/' /usr/share/applications/code-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/share/code/code %F|Exec=/usr/share/code/code --no-sandbox %F|' /usr/share/applications/code-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/share/code/code --new-window %F|Exec=/usr/share/code/code --no-sandbox --new-window %F|' /usr/share/applications/code-no-sandbox.desktop &&
+              cp /usr/share/applications/code-url-handler.desktop /usr/share/applications/code-no-sandbox-url-handler.desktop &&
+              sed -i '/^Name$$.*$$=.*/d; s/^Name=.*/Name=Code No Sandbox URL Handler/' /usr/share/applications/code-no-sandbox-url-handler.desktop &&
+              sed -i 's#Exec=/usr/share/code/code --open-url %U#Exec=/usr/share/code/code --no-sandbox --open-url %U#g' /usr/share/applications/code-no-sandbox-url-handler.desktop;
               rm /tmp/vscode.deb
           - type: "command"
             name: "卸载"
             command: |
-              sudo apt autoremove --purge -y code && sudo rm -f /usr/share/applications/code-no-sandbox.desktop
+              sudo apt autoremove --purge -y code && sudo rm -f /usr/share/applications/code-no-sandbox.desktop /usr/share/applications/code-no-sandbox-url-handler.desktop
       - type: "commands"
         name: 星火应用商店
         description: |
@@ -485,7 +544,7 @@ quick_commands:
               install /tmp/spark.deb -y; rm /tmp/spark.deb
           - type: "command"
             name: 卸载
-            command: sudo apt autoremove --purge -y chromium chromium-l10n && rm /usr/share/applications/chromium-no-sandbox.desktop
+            command: sudo apt autoremove --purge -y spark-store
       - type: "commands"
         name: JetBrains 系列软件
         description: |
@@ -559,12 +618,8 @@ quick_commands:
             commands:
               - type: "command"
                 name: "安装"
-                description: 如果安装失败，可以通过星火应用商店安装。
-                command: |
-                  cat << 'EOF' | sh && sudo dpkg --configure -a && sudo apt update && sudo apt install -y /tmp/wps.deb libxslt1.1
-                  wget https://mirrors.sdu.edu.cn/spark-store/arm64-store/office/wps-office/wps-office_11.1.0.11720-fix4_arm64.deb -O /tmp/wps.deb
-                  EOF
-                  rm /tmp/wps.deb
+                description: 推荐使用容器内输入法（Ctrl + 空格）来输入中文。如果安装失败，可以通过星火应用商店安装。
+                command: "wget -qO- https://mirrors.sdu.edu.cn/spark-store/arm64-store/office/wps-office/app.json | grep -o 'wps-office_[^\"]*_arm64.deb' | head -1 | xargs -I {} wget https://mirrors.sdu.edu.cn/spark-store/arm64-store/office/wps-office/{} -O /tmp/wps.deb && sudo dpkg --configure -a && sudo apt update && sudo apt install -y /tmp/wps.deb libxslt1.1 && cp /opt/tiny/wps/libfreetype.so.6 /opt/kingsoft/wps-office/office6/libfreetype.so.6; rm -f /tmp/wps.deb"
               - type: "command"
                 name: "卸载"
                 command: "sudo apt autoremove --purge -y wps-office"
@@ -582,7 +637,7 @@ quick_commands:
             commands:
               - type: "command"
                 name: "安装"
-                command: "wget https://cc-download.wondershare.cc/business/prd/edrawmax_13.1.0-1_arm64_binner.deb -O /tmp/edraw.deb && sudo apt update && sudo apt install -y /tmp/edraw.deb && bash /opt/tiny/edraw/postinst; rm /tmp/edraw.deb"
+                command: "wget https://cc-download.wondershare.cc/business/prd/edrawmax_13.1.0-1_arm64_binner.deb -O /tmp/edraw.deb && sudo apt update && sudo apt install -y /tmp/edraw.deb libidn12 && bash /opt/tiny/edraw/postinst; rm /tmp/edraw.deb"
               - type: "command"
                 name: "卸载"
                 command: "sudo apt autoremove --purge -y edrawmax libldap-2.4-2"
@@ -617,11 +672,12 @@ quick_commands:
                 command: "sudo apt autoremove --purge -y com.alibabainc.dingtalk"
           - type: "commands"
             name: 同花顺
+            description: 可能需要在设置中启用新版 proot 才能正常运行
             commands:
               - type: "command"
                 name: "安装"
                 command: |
-                  wget https://sp.thsi.cn/staticS3/mobileweb-upload-static-server.file/app_6/downloadcenter/cn.com.10jqka_kylin_2.9.1.1_arm64.deb -O /tmp/cn.com.10jqka.deb && wget http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1w-0+deb11u5_arm64.deb -O /tmp/libssl1.1.deb && sudo apt update && sudo apt install -y /tmp/libssl1.1.deb /tmp/cn.com.10jqka.deb; rm /tmp/cn.com.10jqka.deb /tmp/libssl1.1.deb
+                  wget https://sp.thsi.cn/staticS3/mobileweb-upload-static-server.file/app_6/downloadcenter/cn.com.10jqka_kylin_2.9.1.1_arm64.deb -O /tmp/cn.com.10jqka.deb && wget http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1w-0+deb11u8_arm64.deb -O /tmp/libssl1.1.deb && sudo apt update && sudo apt install -y /tmp/libssl1.1.deb /tmp/cn.com.10jqka.deb; rm /tmp/cn.com.10jqka.deb /tmp/libssl1.1.deb
               - type: "command"
                 name: "卸载"
                 command: "sudo apt autoremove --purge -y cn.com.10jqka"
@@ -722,7 +778,9 @@ quick_commands:
 options:
   - type: "option"
     name: 高分辨率支持
-    description: 一键开启高清模式，显示更清晰的同时速度会变慢。
+    description: |
+      开启高清模式，显示更清晰的同时速度会变慢。
+      通常开启后显示会变大，可在功能->AVNC或Termux:X11的设置中调整缩放。
     env: ["GDK_SCALE=2", "QT_FONT_DPI=192"]
     enabled: false
   - type: "options"
@@ -792,7 +850,7 @@ options:
         pre_start_host_command: >
           $BIN_DIR/virgl_test_server --use-egl-surfaceless --use-gles
           --socket-path=$CACHE_DIR/tmp/.virgl_test &
-        post_end_host_command: pkill virgl_test_server
+        post_end_host_command: pkill -f virgl_test_server
         enabled: false
       - type: "options"
         name: Adreno GPU 加速
@@ -802,10 +860,19 @@ options:
         options:
           - type: "option"
             name: Turnip + Zink 加速
-            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/opt/tiny/extra/freedreno_icd.aarch64.json", "TU_DEBUG=noconform", "MESA_VK_WSI_DEBUG=sw"]
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json", "TU_DEBUG=noconform", "MESA_VK_WSI_DEBUG=sw"]
             enabled: false
           - type: "option"
             name: 启用 DRI3 的 Turnip + Zink 加速
             description: 你只应该在使用 Termux:X11 时使用它。
-            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/opt/tiny/extra/freedreno_icd.aarch64.json", "TU_DEBUG=noconform"]
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json", "TU_DEBUG=noconform"]
+            enabled: false
+          - type: "option"
+            name: Freedreno 加速
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=kgsl", "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json", "TU_DEBUG=noconform", "MESA_VK_WSI_DEBUG=sw"]
+            enabled: false
+          - type: "option"
+            name: 启用 DRI3 的 Freedreno 加速
+            description: 你只应该在使用 Termux:X11 时使用它。
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=kgsl", "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json", "TU_DEBUG=noconform"]
             enabled: false

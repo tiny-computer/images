@@ -28,6 +28,20 @@ feature:
   - type: "microphone"
     name: "Microphone Forwarding"
     description: "Start the microphone and forward audio to the container in real time. Keeping the microphone on drains battery — remember to turn it off!"
+  # print type
+  # If enabled, the Android side will start the IPP service after the container restarts next time, creating the cacheDir/run/cups series of files to listen for print requests.
+  - type: "print"
+    name: "Print Service"
+    description: "When enabled, print requests can be forwarded to Android for printing. Takes effect on the next container boot."
+    enabled: false
+  # storage type
+  # Auto-mount USB drives and SD cards into /mnt if enabled
+  - type: "storage"
+    name: "External Storage"
+    description: |
+      Auto-mount USB drives and SD cards into /mnt.
+      Requires that all file management permissions have been granted, and is only available after a full restart of the app (e.g., force-stopping the app in Android settings and then launching it again).
+    enabled: false
   # lstat-cache type
   # If you have files or directories that won't change while the container is running and are accessed very frequently, they are good candidates for this list!
   # The software caches lstat information for these files, so proot can use the cached data directly when resolving paths. May speed things up by ~0.1%.
@@ -196,11 +210,12 @@ feature:
       # pipewire-pulse > /dev/null 2>&1 & \
       # Xtigervnc -geometry 1440x720 -ZlibLevel=0 -pn -rfbport -1 \
       # -SendPrimary=off -SetPrimary=off -FrameRate=120 -rfbunixpath /tmp/.tiny.vnc -alwaysshared -a 5 -once -depth 24 \
-      # -SecurityTypes=None -desktop "Debian-GNU/Linux-13-(trixie)_pd-tiny-linux-vnc" :6 -extension MIT-SHM > /dev/null 2>&1 & \
+      # -SecurityTypes=None -desktop "Debian-GNU/Linux-13-(trixie)_pd-tiny-linux-vnc" :6 +extension MIT-SHM > /dev/null 2>&1 & \
       # while [ ! -S "/tmp/.tiny.vnc" ]; do sleep 0.1; done && \
       # startxfce4 > /dev/null 2>&1 &
-    # The IP and port will be ignored, but we still need to provide a URL for avnc to parse. The Android side reads information from cacheDir/tmp/.tiny.vnc.
     link: "vnc://127.0.0.1:5906"
+    # The IP and port will be ignored if enabled, but we still need to provide a link for avnc to parse. The Android side reads information from cacheDir/tmp/.tiny.vnc.
+    use_unix_socket: true
     enabled: false
     # When enabled, the resolution automatically adjusts to the screen size.
     adapt_to_screen_size: true
@@ -210,7 +225,7 @@ feature:
   # When enabled, after the next container boot the xserver will be launched with the specified args, the command will be executed when the X11 socket is ready, and the Termux:X11 page will be started.
   - type: "x11"
     # After the container boots, the X server will be launched on port 7902 (hardcoded, currently cannot be changed) with the following arguments.
-    args: [":6", "-extension", "MIT-SHM"]
+    args: [":6", "+extension", "MIT-SHM"]
     name: "Termux:X11 Frontend Example"
     description: |
       When enabled, after the next container boot the xserver will be launched with the specified args, the command will be executed when the X11 socket file is ready, and the Termux:X11 page will be started.
@@ -249,7 +264,10 @@ boot_command: >
   --bind=$CONTAINER_DIR/proc/.uptime:/proc/uptime
   --bind=$CONTAINER_DIR/proc/.version:/proc/version
   --bind=$CONTAINER_DIR/proc/.vmstat:/proc/vmstat
+  --bind=$CONTAINER_DIR/proc/.devices:/proc/bus/pci/devices
   --bind=$CONTAINER_DIR/proc/.sysctl_entry_cap_last_cap:/proc/sys/kernel/cap_last_cap
+  --bind=$CONTAINER_DIR/proc/.overflowuid:/proc/sys/kernel/overflowuid
+  --bind=$CONTAINER_DIR/proc/.overflowgid:/proc/sys/kernel/overflowgid
   --bind=$CONTAINER_DIR/proc/.sysctl_inotify_max_user_watches:/proc/sys/fs/inotify/max_user_watches
   --bind=$CACHE_DIR/tmp:/dev/shm
   --bind=$CACHE_DIR/tmp:/tmp
@@ -280,7 +298,10 @@ export_command: >
   --bind=$CONTAINER_DIR/proc/.uptime:/proc/uptime
   --bind=$CONTAINER_DIR/proc/.version:/proc/version
   --bind=$CONTAINER_DIR/proc/.vmstat:/proc/vmstat
+  --bind=$CONTAINER_DIR/proc/.devices:/proc/bus/pci/devices
   --bind=$CONTAINER_DIR/proc/.sysctl_entry_cap_last_cap:/proc/sys/kernel/cap_last_cap
+  --bind=$CONTAINER_DIR/proc/.overflowuid:/proc/sys/kernel/overflowuid
+  --bind=$CONTAINER_DIR/proc/.overflowgid:/proc/sys/kernel/overflowgid
   --bind=$CONTAINER_DIR/proc/.sysctl_inotify_max_user_watches:/proc/sys/fs/inotify/max_user_watches
   --bind=$CACHE_DIR/tmp:/dev/shm
   --bind=$CACHE_DIR/tmp:/tmp
@@ -448,6 +469,38 @@ quick_commands:
             name: Uninstall
             command: sudo apt autoremove --purge -y chromium chromium-l10n && rm /usr/share/applications/chromium-no-sandbox.desktop
       - type: "commands"
+        name: Chrome Browser
+        description: After installation, open the browser via "Chrome No Sandbox".
+        commands:
+          - type: "command"
+            name: "Install"
+            command: >
+              curl -L -o /tmp/chrome.deb 'https://dl.google.com/linux/direct/google-chrome-stable_current_arm64.deb' &&
+              sudo apt update &&
+              sudo -E env DEBIAN_FRONTEND=noninteractive apt -y
+              -o Dpkg::Options::="--force-confdef"
+              -o Dpkg::Options::="--force-confold"
+              install /tmp/chrome.deb &&
+              cp /usr/share/applications/com.google.Chrome.desktop /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i 's/^Name=Google Chrome/Name=Google Chrome (No Sandbox)/' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i '/^\[Desktop Action new-window\]$/,/^\[/ s/^Name=New Window/Name=New Window (No Sandbox)/' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i '/^\[Desktop Action new-private-window\]$/,/^\[/ s/^Name=New Incognito Window/Name=New Incognito Window (No Sandbox)/' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable %U|Exec=/usr/bin/google-chrome-stable --no-sandbox %U|' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable$|Exec=/usr/bin/google-chrome-stable --no-sandbox|' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable --incognito$|Exec=/usr/bin/google-chrome-stable --incognito --no-sandbox|' /usr/share/applications/com.google.Chrome-no-sandbox.desktop &&
+              cp /usr/share/applications/google-chrome.desktop /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i 's/^Name=Google Chrome/Name=Google Chrome (No Sandbox)/' /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i '/^\[Desktop Action new-window\]$/,/^\[/ s/^Name=New Window/Name=New Window (No Sandbox)/' /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i '/^\[Desktop Action new-private-window\]$/,/^\[/ s/^Name=New Incognito Window/Name=New Incognito Window (No Sandbox)/' /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable %U|Exec=/usr/bin/google-chrome-stable --no-sandbox %U|' /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable$|Exec=/usr/bin/google-chrome-stable --no-sandbox|' /usr/share/applications/google-chrome-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/bin/google-chrome-stable --incognito$|Exec=/usr/bin/google-chrome-stable --incognito --no-sandbox|' /usr/share/applications/google-chrome-no-sandbox.desktop;
+              rm /tmp/chrome.deb
+          - type: "command"
+            name: "Uninstall"
+            command: |
+              sudo apt autoremove --purge -y google-chrome-stable && sudo rm -f /usr/share/applications/com.google.Chrome-no-sandbox.desktop /usr/share/applications/google-chrome-no-sandbox.desktop
+      - type: "commands"
         name: Visual Studio Code
         description: After installation, open VS Code via "Code No Sandbox".
         commands:
@@ -461,13 +514,18 @@ quick_commands:
               -o Dpkg::Options::="--force-confold"
               install /tmp/vscode.deb &&
               cp /usr/share/applications/code.desktop /usr/share/applications/code-no-sandbox.desktop &&
-              sed -i '/^Name$$.*$$=.*/d; s/^Name=.*/Name=Code No Sandbox/' /usr/share/applications/code-no-sandbox.desktop &&
-              sed -i 's#Exec=/usr/share/code/code %F#Exec=/usr/share/code/code --no-sandbox %F#g' /usr/share/applications/code-no-sandbox.desktop;
+              sed -i 's/^Name=Visual Studio Code/Name=Visual Studio Code (No Sandbox)/' /usr/share/applications/code-no-sandbox.desktop &&
+              sed -i '/^\[Desktop Action new-empty-window\]$/,/^\[/ s/^Name=New Empty Window/Name=New Empty Window (No Sandbox)/' /usr/share/applications/code-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/share/code/code %F|Exec=/usr/share/code/code --no-sandbox %F|' /usr/share/applications/code-no-sandbox.desktop &&
+              sed -i 's|^Exec=/usr/share/code/code --new-window %F|Exec=/usr/share/code/code --no-sandbox --new-window %F|' /usr/share/applications/code-no-sandbox.desktop &&
+              cp /usr/share/applications/code-url-handler.desktop /usr/share/applications/code-no-sandbox-url-handler.desktop &&
+              sed -i '/^Name$$.*$$=.*/d; s/^Name=.*/Name=Code No Sandbox URL Handler/' /usr/share/applications/code-no-sandbox-url-handler.desktop &&
+              sed -i 's#Exec=/usr/share/code/code --open-url %U#Exec=/usr/share/code/code --no-sandbox --open-url %U#g' /usr/share/applications/code-no-sandbox-url-handler.desktop;
               rm /tmp/vscode.deb
           - type: "command"
             name: "Uninstall"
             command: |
-              sudo apt autoremove --purge -y code && sudo rm -f /usr/share/applications/code-no-sandbox.desktop
+              sudo apt autoremove --purge -y code && sudo rm -f /usr/share/applications/code-no-sandbox.desktop /usr/share/applications/code-no-sandbox-url-handler.desktop
       - type: "commands"
         name: Spark Store
         description: |
@@ -486,7 +544,7 @@ quick_commands:
               install /tmp/spark.deb -y; rm /tmp/spark.deb
           - type: "command"
             name: Uninstall
-            command: sudo apt autoremove --purge -y chromium chromium-l10n && rm /usr/share/applications/chromium-no-sandbox.desktop
+            command: sudo apt autoremove --purge -y spark-store
       - type: "commands"
         name: JetBrains IDEs
         description: |
@@ -560,12 +618,8 @@ quick_commands:
             commands:
               - type: "command"
                 name: "Install"
-                description: If the installation fails, you can install it via the Spark Store.
-                command: |
-                  cat << 'EOF' | sh && sudo dpkg --configure -a && sudo apt update && sudo apt install -y /tmp/wps.deb libxslt1.1
-                  wget https://mirrors.sdu.edu.cn/spark-store/arm64-store/office/wps-office/wps-office_11.1.0.11720-fix4_arm64.deb -O /tmp/wps.deb
-                  EOF
-                  rm /tmp/wps.deb
+                description: It is recommended to install an input method inside the container to enter special characters. If the installation fails, you can install it via the Spark Store.
+                command: "wget -qO- https://mirrors.sdu.edu.cn/spark-store/arm64-store/office/wps-office/app.json | grep -o 'wps-office_[^\"]*_arm64.deb' | head -1 | xargs -I {} wget https://mirrors.sdu.edu.cn/spark-store/arm64-store/office/wps-office/{} -O /tmp/wps.deb && sudo dpkg --configure -a && sudo apt update && sudo apt install -y /tmp/wps.deb libxslt1.1 && cp /opt/tiny/wps/libfreetype.so.6 /opt/kingsoft/wps-office/office6/libfreetype.so.6; rm -f /tmp/wps.deb"
               - type: "command"
                 name: "Uninstall"
                 command: "sudo apt autoremove --purge -y wps-office"
@@ -583,7 +637,7 @@ quick_commands:
             commands:
               - type: "command"
                 name: "Install"
-                command: wget https://cc-download.wondershare.cc/business/prd/edrawmax_13.1.0-1_arm64_binner.deb -O /tmp/edraw.deb && sudo apt update && sudo apt install -y /tmp/edraw.deb && bash /opt/tiny/edraw/postinst && sudo sed -i 's/<Language V="cn"\/>/<Language V="en"\/>/g' /opt/apps/edrawmax/config/settings.xml; rm /tmp/edraw.deb
+                command: wget https://cc-download.wondershare.cc/business/prd/edrawmax_13.1.0-1_arm64_binner.deb -O /tmp/edraw.deb && sudo apt update && sudo apt install -y /tmp/edraw.deb libidn12 && bash /opt/tiny/edraw/postinst && sudo sed -i 's/<Language V="cn"\/>/<Language V="en"\/>/g' /opt/apps/edrawmax/config/settings.xml; rm /tmp/edraw.deb
               - type: "command"
                 name: "Uninstall"
                 command: "sudo apt autoremove --purge -y edrawmax libldap-2.4-2"
@@ -618,11 +672,12 @@ quick_commands:
                 command: "sudo apt autoremove --purge -y com.alibabainc.dingtalk"
           - type: "commands"
             name: Hithink RoyalFlush
+            description: You may need to enable the new version of proot in settings for it to work properly.
             commands:
               - type: "command"
                 name: "Install"
                 command: |
-                  wget https://sp.thsi.cn/staticS3/mobileweb-upload-static-server.file/app_6/downloadcenter/cn.com.10jqka_kylin_2.9.1.1_arm64.deb -O /tmp/cn.com.10jqka.deb && wget http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1w-0+deb11u5_arm64.deb -O /tmp/libssl1.1.deb && sudo apt update && sudo apt install -y /tmp/libssl1.1.deb /tmp/cn.com.10jqka.deb; rm /tmp/cn.com.10jqka.deb /tmp/libssl1.1.deb
+                  wget https://sp.thsi.cn/staticS3/mobileweb-upload-static-server.file/app_6/downloadcenter/cn.com.10jqka_kylin_2.9.1.1_arm64.deb -O /tmp/cn.com.10jqka.deb && wget http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1w-0+deb11u8_arm64.deb -O /tmp/libssl1.1.deb && sudo apt update && sudo apt install -y /tmp/libssl1.1.deb /tmp/cn.com.10jqka.deb; rm /tmp/cn.com.10jqka.deb /tmp/libssl1.1.deb
               - type: "command"
                 name: "Uninstall"
                 command: "sudo apt autoremove --purge -y cn.com.10jqka"
@@ -719,7 +774,9 @@ quick_commands:
 options:
   - type: "option"
     name: High Resolution Support
-    description: One-click HD mode. Display is sharper but performance will be slower.
+    description: |
+      Enable HD mode. Display is sharper but performance will be slower.
+      The display usually becomes larger after enabling; you can adjust scaling in Features -> AVNC or Termux:X11.
     env: ["GDK_SCALE=2", "QT_FONT_DPI=192"]
     enabled: false
   - type: "options"
@@ -789,7 +846,7 @@ options:
         pre_start_host_command: >
           $BIN_DIR/virgl_test_server --use-egl-surfaceless --use-gles
           --socket-path=$CACHE_DIR/tmp/.virgl_test &
-        post_end_host_command: pkill virgl_test_server
+        post_end_host_command: pkill -f virgl_test_server
         enabled: false
       - type: "options"
         name: Adreno GPU Acceleration
@@ -799,10 +856,19 @@ options:
         options:
           - type: "option"
             name: Turnip + Zink Acceleration
-            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/opt/tiny/extra/freedreno_icd.aarch64.json", "TU_DEBUG=noconform", "MESA_VK_WSI_DEBUG=sw"]
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json", "TU_DEBUG=noconform", "MESA_VK_WSI_DEBUG=sw"]
             enabled: false
           - type: "option"
             name: Turnip + Zink Acceleration with DRI3
             description: You should only use this with Termux:X11.
-            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/opt/tiny/extra/freedreno_icd.aarch64.json", "TU_DEBUG=noconform"]
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=zink", "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json", "TU_DEBUG=noconform"]
+            enabled: false
+          - type: "option"
+            name: Freedreno Acceleration
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=kgsl", "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json", "TU_DEBUG=noconform", "MESA_VK_WSI_DEBUG=sw"]
+            enabled: false
+          - type: "option"
+            name: Freedreno Acceleration with DRI3
+            description: You should only use this with Termux:X11.
+            env: ["MESA_LOADER_DRIVER_OVERRIDE=kgsl", "VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json", "TU_DEBUG=noconform"]
             enabled: false
